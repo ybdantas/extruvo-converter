@@ -164,6 +164,23 @@ function buildTemplate(idx, machineName, processName, filamentName, skeleton) {
   for (const k of ['filament_colour', 'filament_type', 'nozzle_temperature', 'nozzle_temperature_initial_layer']) {
     if (k in R && !Array.isArray(R[k])) R[k] = [R[k]]
   }
+  // Orca 2.5 rejeita retraction_distances_when_cut fora de [10, 18] (exit 238).
+  // Perfil oficial Creality K2 0.4 = 30, SPARKX i7 todos = 28, Sermoon M300 0.4 = 30:
+  // grava 18 (valor válido e já usado pelas irmãs 0.6/0.8 do mesmo perfil).
+  // Divergência documentada no NOTICE.
+  const clampRetr = (val) => {
+    const parts = String(val).split(',').map(s => s.trim())
+    const out = parts.map(p => {
+      const n = Number(p)
+      if (!Number.isFinite(n)) return p
+      return n < 10 ? '10' : (n > 18 ? '18' : p)
+    })
+    return out.join(',')
+  }
+  if ('retraction_distances_when_cut' in R) {
+    const rv = R.retraction_distances_when_cut
+    R.retraction_distances_when_cut = Array.isArray(rv) ? rv.map(clampRetr) : clampRetr(rv)
+  }
   return R
 }
 

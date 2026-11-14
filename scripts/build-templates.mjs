@@ -151,6 +151,24 @@ function build(idx, spec, skeleton) {
   for (const k of ['filament_colour', 'filament_type', 'nozzle_temperature', 'nozzle_temperature_initial_layer']) {
     if (k in R && !Array.isArray(R[k])) R[k] = [R[k]]
   }
+  // Chaves por-extrusora (ex.: nozzle_volume_type) devem acompanhar o nº de
+  // toolheads da máquina (nozzle_diameter). O Flash Studio dá SIGSEGV quando
+  // nozzle_volume_type é menor. Usa default_nozzle_volume_type (que o perfil
+  // oficial Creator 5 declara com N "Standard") como fonte de verdade.
+  const nozArr = Array.isArray(R.nozzle_diameter) ? R.nozzle_diameter : []
+  const nExtruders = nozArr.length
+  if (nExtruders > 1) {
+    for (const k of ['nozzle_volume_type']) {
+      const cur = R[k]
+      if (!Array.isArray(cur) || cur.length === nExtruders) continue
+      const def = R['default_' + k]
+      if (Array.isArray(def) && def.length === nExtruders) R[k] = [...def]
+      else {
+        const fallback = Array.isArray(def) && def.length ? def[0] : (cur.length ? cur[0] : 'Standard')
+        R[k] = Array(nExtruders).fill(fallback)
+      }
+    }
+  }
   return R
 }
 

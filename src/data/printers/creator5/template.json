@@ -684,6 +684,9 @@
         "0"
     ],
     "nozzle_volume_type": [
+        "Standard",
+        "Standard",
+        "Standard",
         "Standard"
     ],
     "only_one_wall_first_layer": "0",

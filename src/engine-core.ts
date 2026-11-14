@@ -27,6 +27,46 @@ const MULTI_COLOUR_DEFAULT = '#26A69A'
 const SPEED_KEYS = ['sparse_infill_speed', 'internal_solid_infill_speed', 'gap_infill_speed'] as const
 const COLOR_RE = /^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$/
 const FEATURE_MIN1_KEYS = new Set(['wall_filament', 'sparse_infill_filament', 'solid_infill_filament'])
+// OrcaSlicer 2.5 só aceita retraction_distances_when_cut em [10, 18]. O perfil
+// oficial Creality coloca 30 (K2 0.4, Sermoon M300 0.4) e 28 (SPARKX i7 todos)
+// nas máquinas de uma extrusora que o Orca 2.5 recusa com exit 238. Clamp
+// defensivo (só para esta chave) grava 18, valor válido e já usado pelas
+// variantes irmãs 0.6 / 0.8 do mesmo perfil. Documentado em NOTICE.
+const RETRACTION_DISTANCES_WHEN_CUT_RANGE: [number, number] = [10, 18]
+// Chaves alinhadas ao FILAMENTO (não ao toolhead). Confirmado contra o 3MF
+// single_color oficial exportado pelo Flash Studio 1.7.9 (box, AppImage,
+// 2026-11-14): perfil oficial "Flashforge Creator 5 Pro 0.4 nozzle.json"
+// (machine) + "0.20mm Standard @FF C5.json" (process) + "Flashforge PLA
+// Basic @FF C5P.json" (filament), `--slice 0 --allow-mix-temp
+// --export-3mf`, exit 0. O project_settings do 3MF gerado traz:
+//   nozzle_volume_type          ["Standard"]
+//   filament_extruder_variant   ["Direct Drive Standard"]
+//   filament_map                ["1"]
+// e no multicolor_4 oficial (nfil=4) as três têm 4 entradas.
+//
+// Regra correta (2026-11-14, revisão da revisão):
+//   filament_extruder_variant  length = nfil
+//   filament_map               length = nfil
+//   nozzle_volume_type         length = min(nfil, toolheads)
+//
+// nozzle_volume_type bate com `default_nozzle_volume_type` por posição de
+// toolhead (uma entrada por bico físico). Em máquinas 1-toolhead + 4
+// filamentos (AD5X, Creality Ender-3 0.2) o oficial / perfil upstream
+// traz nvt length 1 e o Orca 2.5 reclama de "Prime tower is partially
+// outside the printable area" (exit 156) quando enviamos length 4.
+// Expansão errada para toolheads na Creator 5 / 5 Pro (4-toolhead) em
+// single_color fazia o Flash Studio buscar extruder_type/nozzle_volume_type
+// para extruder_index 2/3/4 e abortar com SIGSEGV (exit 139). Arrays
+// por-extrusora da máquina (nozzle_diameter, printer_extruder_id,
+// extruder_type, default_nozzle_volume_type, deretraction_speed,
+// extruder_offset, etc.) continuam com length = toolheads e não entram
+// nesta lista.
+type FilamentAlignedKey = { key: string; pad: string; cap: 'nfil' | 'min_nfil_toolheads' }
+const FILAMENT_ALIGNED_KEYS: ReadonlyArray<FilamentAlignedKey> = [
+  { key: 'nozzle_volume_type', pad: 'Standard', cap: 'min_nfil_toolheads' },
+  { key: 'filament_extruder_variant', pad: 'Direct Drive Standard', cap: 'nfil' },
+  { key: 'filament_map', pad: '1', cap: 'nfil' },
+]
 
 export class ConversionError extends Error {
   readonly report: ConversionReport
@@ -93,6 +133,101 @@ function newReport(printer: Printer | null, srcName: string): ConversionReport {
 
 function safeColor(c: unknown): string | null {
   return typeof c === 'string' && COLOR_RE.test(c) ? c : null
+}
+
+function extruderCount(R: ProjectSettings): number {
+  const nd = R.nozzle_diameter
+  if (Array.isArray(nd) && nd.length) return nd.length
+  const pe = R.printer_extruder_id
+  if (Array.isArray(pe) && pe.length) return pe.length
+  return 1
+}
+
+// Alinha as três chaves indexadas por filamento. filament_extruder_variant
+// e filament_map têm length = nfil. nozzle_volume_type bate por POSIÇÃO DE
+// TOOLHEAD com `default_nozzle_volume_type`, então o alvo é
+// min(nfil, toolheads): em máquinas 1-toolhead + nfil>1 (AD5X, Ender-3 0.2)
+// fica length 1 (= perfil oficial upstream, cabe no Orca 2.5); em
+// máquinas 4-toolhead + nfil=1 (Creator 5 / 5 Pro single_color) fica
+// length 1 (= 3MF oficial Flash Studio 1.7.9, evita o SIGSEGV por indexar
+// extruder_index 2/3/4). Trim se o template tiver mais entradas, pad
+// nunca além do alvo. Não toca default_nozzle_volume_type ou qualquer
+// outra array por-extrusora da máquina.
+function alignFilamentKeysToNfil(R: ProjectSettings, nfil: number, rep: ConversionReport): void {
+  const toolheads = extruderCount(R)
+  for (const { key, pad, cap } of FILAMENT_ALIGNED_KEYS) {
+    const target = cap === 'nfil' ? nfil : Math.min(nfil, toolheads)
+    const v = R[key]
+    if (!Array.isArray(v)) {
+      R[key] = Array(target).fill(pad)
+      continue
+    }
+    if (v.length === target) continue
+    let arr: unknown[]
+    if (v.length > target) {
+      arr = v.slice(0, target)
+    } else {
+      arr = [...v]
+      const last = arr.length ? arr[arr.length - 1] : pad
+      while (arr.length < target) arr.push(last)
+    }
+    R[key] = arr
+    const anchor = cap === 'nfil' ? 'nº de filamentos' : 'min(nº de filamentos, nº de toolheads)'
+    rep.notes.push(`${key}: ${v.length} → ${target} entradas (= ${anchor}; alinhamento ao 3MF oficial do Flash Studio 1.7.9).`)
+  }
+}
+
+function clampRetractionDistancesWhenCut(R: ProjectSettings, rep: ConversionReport): void {
+  const key = 'retraction_distances_when_cut'
+  const v = R[key]
+  if (v === undefined || v === null) return
+  const [lo, hi] = RETRACTION_DISTANCES_WHEN_CUT_RANGE
+  const sanitizeOne = (raw: unknown): unknown => {
+    if (raw === null || raw === undefined) return raw
+    const parts = String(raw).split(',').map(s => s.trim())
+    const normalized = parts.map(part => {
+      const n = num(part)
+      if (n === null) return part
+      if (n < lo) return String(lo)
+      if (n > hi) return String(hi)
+      return part
+    })
+    return normalized.join(',')
+  }
+  const beforeArr = Array.isArray(v) ? v : [v]
+  const afterArr = beforeArr.map(sanitizeOne)
+  const changed = afterArr.some((x, i) => String(x) !== String(beforeArr[i]))
+  if (changed) {
+    R[key] = Array.isArray(v) ? afterArr : afterArr[0]
+    const samples: string[] = []
+    for (let i = 0; i < beforeArr.length && samples.length < 4; i++) {
+      const a = String(beforeArr[i]), b = String(afterArr[i])
+      if (a !== b) samples.push(`${a}→${b}`)
+    }
+    rep.notes.push(`retraction_distances_when_cut: clamp para [${lo}, ${hi}] (limite do OrcaSlicer 2.5): ${samples.join(', ')}.`)
+  }
+}
+
+// FIX 2 (crítico): o Orca 2.5 lê retraction_distances_when_cut do 3MF mas se
+// a chave não aparecer no SLOT DE MÁQUINA de different_settings_to_system
+// (último slot), reverte para o valor do perfil oficial Creality.opc (30 em
+// K2 0.4 / Sermoon M300 0.4; 28 em SPARKX i7) — resultado: `18 -> 30` e
+// exit 238. Marcamos a chave como customizada na máquina para perfis que
+// serão fatiados pelo Orca (Creality). Flashforge usa Flash Studio, não
+// Orca; mantemos paridade com o Python v0.2.3 ali. Divergência explícita
+// documentada no NOTICE.
+function markRetractionDistancesInMachineSlot(R: ProjectSettings, printer: Printer): void {
+  if (!('retraction_distances_when_cut' in R)) return
+  const model = String(printer.meta.printer_model ?? '')
+  if (!model.startsWith('Creality')) return
+  const d = R.different_settings_to_system
+  if (!Array.isArray(d) || !d.length) return
+  const lastIdx = d.length - 1
+  const slot = String(d[lastIdx] ?? '')
+  const keys = new Set(slot.split(';').filter(Boolean))
+  if (keys.has('retraction_distances_when_cut')) return
+  keys.add('retraction_distances_when_cut')
+  d[lastIdx] = [...keys].sort().join(';')
 }
 
 function sanitizeColors(R: ProjectSettings, rep: ConversionReport) {
@@ -510,6 +645,21 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
     rep.warnings.push('Temperaturas acima do limite da ' + printer.label + ' foram limitadas: ' + rep.capped.slice(0, 8).map(c => `${c.key} ${c.from}→${c.to} °C`).join(', ') + '. Confira se o material é adequado à máquina.')
   }
 
+  // Compat: filament_extruder_variant e filament_map têm length = nfil;
+  // nozzle_volume_type tem length = min(nfil, toolheads) (bate por
+  // posição de toolhead com default_nozzle_volume_type). Confirmado
+  // contra o 3MF single_color oficial exportado pelo Flash Studio 1.7.9 em
+  // 2026-11-14 (Creator 5 / 5 Pro single_color: 4 toolheads + 1 filamento
+  // → length 1, evita SIGSEGV) e contra o perfil upstream Creality
+  // Ender-3 0.2 (1 toolhead + 4 filamentos → length 1, evita o Orca 2.5
+  // recusar a torre com exit 156 "partially outside the printable area").
+  // OrcaSlicer 2.5 também recusa retraction_distances_when_cut fora de
+  // [10, 18] e reverte para o valor herdado se a chave não constar do
+  // slot de máquina de different_settings_to_system.
+  alignFilamentKeysToNfil(R, nfil, rep)
+  clampRetractionDistancesWhenCut(R, rep)
+  markRetractionDistancesInMachineSlot(R, printer)
+
   // 6) placas, filamentos usados, reposicionamento
   let ob: Area | null = null
   let ow = 0, oh = 0
@@ -559,6 +709,10 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
   const nfilOut = keepIdx ? keepIdx.length : nfil
   remapFeatureFilaments(mp, R, keepIdx, nfilOut, rep)
   if (keepIdx && nfilOut === 1) R.enable_prime_tower = '0'
+  // Se pruneFilaments reduziu o nº de filamentos, realinha as três chaves
+  // indexadas por filamento (nozzle_volume_type não entra em filamentOpts/
+  // perFilamentExtra e precisa ser aparado explicitamente).
+  if (nfilOut !== nfil) alignFilamentKeysToNfil(R, nfilOut, rep)
   if (nfilOut > printer.slots) {
     let msg: string
     if (printer.slots === 1) {
@@ -706,25 +860,93 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
   }
 
   // torre de purga por placa
+  //
+  // Mantém a fórmula original (reserve = tw + 6 em X, tw*1.5 + 6 em Y) para
+  // compatibilidade com a paridade Python v0.2.3. Três mudanças: (1) o clamp
+  // é aplicado SEMPRE — inclusive quando o projeto do autor não traz
+  // wipe_tower_x/y e o template da impressora destino contém coordenadas
+  // fora da mesa (ex.: Creality Ender-3 0.2 traz wipe_tower_y=181 num bed
+  // 0..220 com prime_tower_width=60); (2) a reserva externa inclui tudo que
+  // cresce fora do perímetro da torre no Orca 2.5: prime_tower_brim_width,
+  // skirt_loops×skirt_distance, wipe_tower_rib_width e a contribuição da
+  // base cônica (wipe_tower_cone_angle), somados a 1 mm de folga —
+  // antes a conta considerava só skirt+brim do modelo e o Orca recusava
+  // multicolor_4 em Ender-3 0.2 (tw+brim+skirt caía em 221 numa mesa 220);
+  // (3) se a torre + margem não couberem fisicamente na mesa, desligamos a
+  // torre em vez de gravar valores inválidos — o Orca rejeita com
+  // "Prime tower is partially outside the printable area".
   const tw = num(first(R.prime_tower_width as unknown)) ?? 35.0
+  const th = tw * 1.5
+  const skirtLoops = num(first(R.skirt_loops as unknown)) ?? 0
+  const skirtDist = num(first(R.skirt_distance as unknown)) ?? 0
+  // Fórmula pedida pelo follow-up: skirt_loops × skirt_distance (0 sem skirt).
+  const skirtOuter = skirtLoops > 0 ? skirtLoops * Math.max(0, skirtDist) : 0
+  const brimType = String(first(R.brim_type as unknown) ?? '').toLowerCase()
+  const brimActive = brimType && brimType !== 'no_brim'
+  const brimWidth = brimActive ? Math.max(0, num(first(R.brim_width as unknown)) ?? 0) : 0
+  // Brim da própria torre de purga (sempre ativa quando a torre está ligada).
+  const primeTowerBrim = Math.max(0, num(first(R.prime_tower_brim_width as unknown)) ?? 0)
+  // Rib e cone da base do wipe tower type2 do Orca 2.5. Para o cone usamos
+  // uma estimativa curta baseada no ângulo (sem saber a altura real da
+  // impressão) e cortamos em 8 mm para não penalizar mesas grandes.
+  const ribWidth = Math.max(0, num(first(R.wipe_tower_rib_width as unknown)) ?? 0)
+  const coneAngle = Math.max(0, num(first(R.wipe_tower_cone_angle as unknown)) ?? 0)
+  const coneExtra = coneAngle > 0 ? Math.min(8, Math.tan((coneAngle * Math.PI) / 180) * 8) : 0
+  // Reserva total externa (cada lado) + 1 mm de folga mínima para que o
+  // teste do Orca aceite com ≥0,5 mm de margem.
+  const towerOuterPad = Math.max(primeTowerBrim, brimWidth) + skirtOuter + ribWidth + coneExtra + 1
+  // Mantém a "folga de 6 mm" histórica como piso para não quebrar a paridade
+  // Python em projetos sem skirt/brim/rib/cone.
+  const extraPad = Math.max(0, towerOuterPad - 6)
+  const needX = tw + 2 * Math.max(towerOuterPad, 6)
+  const needY = th + 2 * Math.max(towerOuterPad, 6)
+  const canFit = needX <= nw && needY <= nh
   const towers = new Map<number, [number | null, number | null]>()
   for (const pid of pids) towers.set(pid, [null, null])
+  const primeTowerWasEnabled = String(first(R.enable_prime_tower as unknown) ?? '0') === '1'
+  if (primeTowerWasEnabled && !canFit && nfilOut > 1 && !merged) {
+    R.enable_prime_tower = '0'
+    const diff = R.different_settings_to_system as string[] | undefined
+    if (Array.isArray(diff) && diff.length) {
+      const procSlot = String(diff[0]).split(';').filter(Boolean)
+      if (!procSlot.includes('enable_prime_tower')) {
+        procSlot.push('enable_prime_tower')
+        procSlot.sort()
+        diff[0] = procSlot.join(';')
+      }
+    }
+    const msg = `Torre de purga ${tw.toFixed(0)} mm + skirt/brim não cabem na mesa ${nw.toFixed(0)}x${nh.toFixed(0)} mm da ${printer.label}: torre desligada (enable_prime_tower=0). Para imprimir multicolor nesta mesa, use a opção "Fundir em um filamento" no conversor ou reduza skirt/brim/width no Orca.`
+    rep.warnings.push(msg); rep.pending.push(msg)
+  }
   const dims: Array<['x' | 'y', number]> = [['x', nw], ['y', nh]]
   for (let ai = 0; ai < 2; ai++) {
     const [ax, limAx] = dims[ai]
     const k = 'wipe_tower_' + ax
     const oSrc = ob ? ob[ai] : 0.0
     const oDst = nb[ai]
+    const reserve = (ai === 0 ? (tw + 6.0) : (tw * 1.5 + 6.0)) + extraPad
+    const minLocal = 4.0 + extraPad
+    const maxLocal = Math.max(minLocal, limAx - reserve)
     let sv = S[k]
-    if (sv !== undefined && sv !== null) {
-      sv = Array.isArray(sv) ? sv : [sv]
-      const vals = (sv as unknown[]).length
-        ? Array.from({ length: pids.length }, (_, i) => num((sv as unknown[])[Math.min(i, (sv as unknown[]).length - 1)]))
-        : []
-      if (vals.length && !vals.includes(null)) {
-        const reserve = ai === 0 ? (tw + 6.0) : (tw * 1.5 + 6.0)
-        R[k] = vals.map((v, i) => fmt(oDst + Math.min(Math.max(v! - oSrc + shifts.get(pids[i])![ai], 4.0), limAx - reserve), 2))
+    const haveSource = sv !== undefined && sv !== null
+    if (haveSource) sv = Array.isArray(sv) ? sv : [sv]
+    const tplBase = (() => {
+      const tv = T[k]
+      const tvArr = Array.isArray(tv) ? tv as unknown[] : (tv !== undefined && tv !== null ? [tv] : [])
+      const n = num(first(tvArr as unknown[]))
+      if (n === null) return null
+      return n - oDst
+    })()
+    const vals = Array.from({ length: pids.length }, (_, i) => {
+      if (haveSource) {
+        const arr = sv as unknown[]
+        const n = arr.length ? num(arr[Math.min(i, arr.length - 1)]) : null
+        if (n !== null) return n - oSrc + shifts.get(pids[i])![ai]
       }
+      return tplBase
+    })
+    if (vals.every(v => v !== null)) {
+      R[k] = vals.map(v => fmt(oDst + Math.min(Math.max(v!, minLocal), maxLocal), 2))
     }
     const rv = R[k]
     const rvArr = Array.isArray(rv) ? rv as unknown[] : (rv !== undefined && rv !== null ? [rv] : [])

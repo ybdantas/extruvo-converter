@@ -81,6 +81,181 @@ Para regenerar após trocar o pin:
       --profiles modules/extruvo-converter/vendor/orca-creality/<hash>/Creality \
       --hash <hash> --tag <tag>
 
+Divergências explícitas dos perfis upstream (2026-11-14)
+--------------------------------------------------------
+
+O motor + `scripts/build-creality.mjs` aplicam um clamp defensivo em
+`retraction_distances_when_cut` para o intervalo [10, 18] (único valor
+aceito pelo OrcaSlicer 2.5; fora disso o Orca sai com exit 238 e retorna
+-18). As famílias cujo perfil oficial vendoreado declara valor fora dessa
+faixa e agora recebem 18 no template derivado:
+
+- `Creality K2 0.4 nozzle`           upstream `30` → gravado `18`.
+- `Creality Sermoon M300 0.4 nozzle` upstream `30` → gravado `18`.
+- `Creality SPARKX i7 0.2 nozzle`    upstream `28` → gravado `18`.
+- `Creality SPARKX i7 0.4 nozzle`    upstream `28` → gravado `18`.
+- `Creality SPARKX i7 0.6 nozzle`    upstream `28` → gravado `18`.
+- `Creality SPARKX i7 0.8 nozzle`    upstream `28` → gravado `18`.
+
+`18` é o valor que as variantes irmãs de bico (`0.6` / `0.8` da K2 e M300,
+além dos perfis em geral que herdam só de `fdm_creality_common`) já usam
+oficialmente, e é o único na borda da faixa aceita pelo Orca 2.5. A
+regra está implementada em dois lugares: (1) o motor (`src/engine-core.ts`
+clampa só esta chave no project_settings do 3MF de saída) e (2) o gerador
+de templates (`scripts/build-creality.mjs` reescreve o valor antes de
+gravar `template.json`). Nenhum outro parâmetro é silenciado.
+
+Perfis Flash Studio Creator 5 / Creator 5 Pro: a chave `nozzle_volume_type`
+NÃO está declarada no JSON de máquina oficial, enquanto
+`default_nozzle_volume_type` traz 4 entradas `"Standard"` (uma por
+toolhead). Correção definitiva confirmada em 2026-11-14 contra 3MF
+oficial (ver "Correção 2026-11-14 (noite)" abaixo): `nozzle_volume_type`
+é indexado por FILAMENTO (length = nfil), não por toolhead;
+`default_nozzle_volume_type` sim é por toolhead (length = 4). Nenhum
+valor foi inventado.
+
+Follow-up 2026-11-14 (tarde) — três divergências adicionais do upstream
+-----------------------------------------------------------------------
+
+Após o slice CLI real (OrcaSlicer 2.5.0 + Flash Studio 1.7.9) em box Linux,
+três comportamentos upstream permaneciam quebrando o fatiamento. O motor
+foi corrigido localmente:
+
+FIX 1 — `filament_extruder_variant` e `filament_map` em single_color sobre
+máquinas 4-toolhead (Creator 5 / Creator 5 Pro): hipótese inicial era de
+que o Flash Studio 1.7.9 indexava essas arrays pelo nº de toolheads
+(0..3) e que o fix seria padding para `max(nfil, toolheads)`. A
+"Correção 2026-11-14 (noite)" abaixo revisa essa hipótese com evidência
+do 3MF oficial: o Flash Studio indexa por FILAMENTO; o padding por
+toolhead era o próprio bug.
+
+FIX 2 — `retraction_distances_when_cut` no slot de máquina de
+`different_settings_to_system` (último slot): o OrcaSlicer 2.5, ao ler
+o 3MF, detecta `18` no project_settings mas se o slot de máquina de
+`different_settings_to_system` NÃO lista a chave, trata como "igual ao
+sistema" e reverte para o valor herdado (30 em K2 0.4 / Sermoon M300 0.4;
+28 em SPARKX i7), caindo em "retraction_distances_when_cut: 30 not in
+range [10, 18]" e exit 238. O motor passa a marcar a chave no slot de
+máquina para qualquer impressora Creality (prefixo `printer_model`
+"Creality"). Flashforge mantém paridade com Python v0.2.3 (Flash Studio
+não apresenta o problema; adicionar lá sem necessidade degradaria a
+paridade de parity-golden sem benefício).
+
+FIX 3 — Reserva da torre de purga agora inclui `prime_tower_brim_width`,
+`skirt_loops × skirt_distance`, `wipe_tower_rib_width` e a contribuição
+cônica (`wipe_tower_cone_angle`), com 1 mm adicional de folga mínima. A
+fórmula anterior só considerava skirt/brim do modelo; com isso a torre
+em Ender-3 0.2 (`prime_tower_width=35`, `prime_tower_brim_width=3`,
+`skirt_loops=2`, `skirt_distance=2`, `wipe_tower_rib_width=8`,
+`wipe_tower_cone_angle=30`) caía em X=179 + 35 + 19,6 = 233,6 mm numa
+mesa de 220 mm e o Orca rejeitava com "Prime tower is partially outside
+the printable area" (exit 156). Nova fórmula produz folga mínima
+≥ 0,5 mm; se mesmo assim torre + margem não couberem fisicamente, o
+motor desliga `enable_prime_tower` e emite warning com o texto
+"Fundir em um filamento".
+
+Correção 2026-11-14 (noite) — Creator 5 / 5 Pro single_color (revisão FIX 1)
+---------------------------------------------------------------------------
+
+Evidência: em 2026-11-14 exportamos um 3MF single_color oficial pelo
+próprio Flash Studio 1.7.9 (box, AppImage) usando:
+
+- machine profile oficial `Flashforge Creator 5 Pro 0.4 nozzle.json`
+  (`type=machine`) e irmã `Flashforge Creator 5 0.4 nozzle.json`;
+- process oficial `0.20mm Standard @FF C5.json` (`type=process`);
+- filament oficial `Flashforge PLA Basic @FF C5P.json` (`type=filament`);
+- CLI: `--load-settings <machine>;<process> --load-filaments <filament>
+  --slice 0 --allow-mix-temp --outputdir DIR --export-3mf export.3mf`
+  sobre a geometria do cubo de fixture (3MF AD5X).
+
+Exit 0, `plate_1.gcode` gerado. Comparação do `project_settings.config`
+do 3MF oficial single vs o que o conversor estava emitindo (versão
+"after2" single_color que produzia SIGSEGV 0/5) isolou os descasamentos
+de comprimento de array abaixo (`L1` = length 1, etc.):
+
+| Chave                       | Oficial single | Conversor (bug) | Status                     |
+| --------------------------- | -------------- | --------------- | -------------------------- |
+| `filament_extruder_variant` | `L1`           | `L4` (padded)   | **CORRIGIDO** (ver abaixo) |
+| `filament_map`              | `L1` `["1"]`   | `L4` (padded)   | **CORRIGIDO**              |
+| `nozzle_volume_type`        | `L1`           | `L4` (padded)   | **CORRIGIDO**              |
+| `flush_multiplier`          | `L4`           | `L1`            | não aplicado (ver abaixo)  |
+| `flush_volumes_matrix`      | `L4`           | `L1`            | não aplicado               |
+| `inherits_group`            | `L3` `["","",""]` | ausente       | não aplicado               |
+| `small_perimeter_threshold` | escalar `"0"`  | `["0","0"]`     | não aplicado               |
+| `travel_speed_z`            | escalar `"0"`  | `["0","0"]`     | não aplicado               |
+
+Arrays de máquina por-extrusora já batiam com o oficial em length 4:
+`extruder_type`, `printer_extruder_id`, `default_nozzle_volume_type`,
+`deretraction_speed`, `extruder_colour`, `extruder_offset`,
+`extruder_printable_height`, `extruder_variant_list`, etc.
+
+O 3MF oficial / exportado pelo Flash Studio em multicolor_4 mantém
+`filament_*` e `nozzle_volume_type` com `L4` (= nfil = 4). O
+multicolor_4 do conversor já fatiava 5/5 porque `L4` coincide tanto com
+nfil quanto com toolheads e o Flash Studio não precisa indexar além.
+
+Conclusão: o padding das três chaves acima para o nº de toolheads (4) no
+single_color é que causava o erro
+`could not found extruder_type Direct Drive, nozzle_volume_type
+Standard, extruder_index 2/3/4` e o SIGSEGV (exit 139). A hipótese
+anterior (indexação por toolhead) estava invertida: essas três chaves
+têm length = nfil, não length = toolheads.
+
+Correção:
+
+- `src/engine-core.ts`: remove `PER_EXTRUDER_SYNC_KEYS /
+  syncPerExtruderArrays` e `FILAMENT_KEYS_PAD_TO_TOOLHEAD /
+  padFilamentKeysForToolheads`. Introduz `alignFilamentKeysToNfil`,
+  que apara (trim) `nozzle_volume_type`, `filament_extruder_variant` e
+  `filament_map` para `length === nfil`. Pad só até nfil (NUNCA até
+  toolheads); se `pruneFilaments` reduzir nfilOut, re-alinha. Templates
+  Creator 5 / 5 Pro permanecem iguais (vêm com `nozzle_volume_type`
+  length 4; o engine apara no `convert`).
+- `src/validate.ts`: remove a isenção `padExempt` que aceitava length =
+  toolheads para `filament_extruder_variant` / `filament_map`. Agora
+  exige length = nfil, inclusive para `nozzle_volume_type`.
+- `tests/makerworld-converter.test.ts`: substitui os dois testes "FIX 1"
+  e "FIX 1 (follow-up)" pelas novas expectativas (single length 1,
+  multi length 4; arrays de máquina continuam length 4). Adiciona
+  regressão explícita "NUNCA > nfil".
+
+Diferenças NÃO aplicadas nesta passagem (`flush_*`, `inherits_group`,
+`small_perimeter_threshold`, `travel_speed_z`): essas chaves não são o
+lookup que crasha — o Flash Studio não disparou SIGSEGV por elas. O
+multicolor_4 do conversor fatia 5/5 com os valores atuais. Ficam
+documentadas aqui para reconciliação futura de parity-golden, sem
+alteração no engine ou nos templates nesta correção.
+
+Correção pontual 2026-11-14 (noite, 2ª passagem): `nozzle_volume_type` tem
+length = `min(nfil, toolheads)`, não length = nfil. A revisão anterior
+generalizou demais e passou a expandir nvt para nfil mesmo em máquinas
+de 1 toolhead (AD5X, Creality Ender-3 0.2, qualquer FDM single-nozzle
+multicolor_4), fazendo o OrcaSlicer 2.5 recusar a torre em mesas
+~220 mm com `exit 156 "Prime tower is partially outside the printable
+area"` — nvt bate por POSIÇÃO DE TOOLHEAD com `default_nozzle_volume_type`,
+e enviar length 4 numa máquina 1-toolhead não casa com o perfil upstream.
+`filament_extruder_variant` e `filament_map` seguem length = nfil
+(mudança da revisão anterior preservada). Valores alvo confirmados:
+Creator 5 / 5 Pro single_color = 1 (= nfil, bloqueia SIGSEGV),
+multicolor_4 = 4 (= nfil = toolheads); Ender-3 0.2 / AD5X single = 1,
+multi = 1 (= toolheads, satisfaz o Orca). Nenhum valor foi inventado.
+
+Comportamento conhecido NÃO corrigido (upstream Creality)
+---------------------------------------------------------
+
+Alguns `machine_start_gcode` oficiais dos perfis Creality fazem "prime
+line" fora da `printable_area` declarada no mesmo perfil (ex.: Ender-3 V3
+SE `X-2.1/-2.4` com mesa `0..220`; CR-10 V3 `X2` com mesa começando em
+`5,5`; Ender-3 V4 `Y-1`). O conversor NÃO altera estas coordenadas — o
+G-code sai literalmente igual ao do `machine` JSON upstream. Para fatiar
+com o mesmo comportamento no Orca CLI:
+
+    orca-slicer-cli --slice 0 --allow-mix-temp \
+      --load-settings "<perfil>.json;<process>.json;<filament>.json" \
+      modelo.3mf
+
+A verificação `gcode_custom_xy_na_mesa` do motor é `pending`, não erro.
+
 
 
 MIT License

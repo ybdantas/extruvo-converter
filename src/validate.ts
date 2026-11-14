@@ -71,13 +71,32 @@ export async function validateOutput(src: ArrayBuffer | Uint8Array, out: ArrayBu
   push(checks, 'presets_filamento', psIds.every(f => fps.has(f)), `filament_settings_id=${JSON.stringify(R.filament_settings_id)}`)
   push(checks, 'mesa', R.curr_bed_type === printer.meta.bed_type, `curr_bed_type=${R.curr_bed_type}`)
 
+  // Alinhamento oficial Flash Studio 1.7.9 + perfis upstream Creality
+  // (2026-11-14, revisão da revisão): filament_extruder_variant e
+  // filament_map continuam indexados por FILAMENTO (length = nfil).
+  // nozzle_volume_type bate por POSIÇÃO DE TOOLHEAD com
+  // default_nozzle_volume_type, então o alvo válido é
+  // min(nfil, toolheads) — no 3MF single_color oficial Flash Studio 1.7.9
+  // (4 toolheads + 1 filamento) sai length 1 e no multicolor_4 oficial
+  // (4+4) sai length 4. Em máquinas 1-toolhead (AD5X, Ender-3 0.2) com
+  // nfil>1, nvt fica length 1 (o Orca 2.5 recusa prime tower com length
+  // > toolheads em mesas ~220 mm). Arrays por-extrusora da máquina
+  // (default_nozzle_volume_type, printer_extruder_id, extruder_type,
+  // deretraction_speed, etc.) continuam com length = toolheads e não
+  // entram nesta checagem.
   const requiredLen = ['filament_colour', 'filament_settings_id', 'filament_type', 'nozzle_temperature',
     'nozzle_temperature_initial_layer', 'filament_self_index', 'filament_map']
   const badLen: string[] = []
   for (const k of requiredLen) {
     const v = R[k]
-    if (Array.isArray(v) && v.length !== n) badLen.push(k)
+    if (!Array.isArray(v)) continue
+    if (v.length !== n) badLen.push(k)
   }
+  const nd = R.nozzle_diameter
+  const toolheads = Array.isArray(nd) && nd.length ? nd.length : 1
+  const nvtTarget = Math.min(n, toolheads)
+  const nvt = R.nozzle_volume_type
+  if (Array.isArray(nvt) && nvt.length !== nvtTarget) badLen.push('nozzle_volume_type')
   const skip = new Set(['compatible_printers', 'compatible_prints', 'filament_ramming_parameters'])
   for (const [k, v] of Object.entries(R)) {
     if (!Array.isArray(v)) continue
