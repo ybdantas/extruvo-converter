@@ -1,0 +1,52 @@
+{
+  "id": "creality-sermoon-d3-04",
+  "label": "Creality Sermoon D3 0.40 mm",
+  "printer_model": "Creality Sermoon D3",
+  "printer_settings_id": "Creality Sermoon D3 0.4 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality Sermoon D3 0.4 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 1,
+  "slot_system": "monofilamento (1 bico, sem CFS)",
+  "multi_material": false,
+  "nozzle_diameter": 0.4,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 260,
+    "bed_max_c": 105,
+    "max_speed_mm_s": 500,
+    "max_accel_mm_s2": 500
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.08": "0.08mm Extra Fine @Creality Sermoon D3 0.4 nozzle",
+    "0.16": "0.16mm Optimal @Creality Sermoon D3 0.4 nozzle",
+    "0.2": "0.20mm Standard @Creality Sermoon D3 0.4 nozzle"
+  },
+  "layer_speeds": {
+    "0.08": {
+      "sparse_infill_speed": "80",
+      "internal_solid_infill_speed": "80",
+      "gap_infill_speed": "50"
+    },
+    "0.16": {
+      "sparse_infill_speed": "100",
+      "internal_solid_infill_speed": "100",
+      "gap_infill_speed": "70"
+    },
+    "0.2": {
+      "sparse_infill_speed": "100",
+      "internal_solid_infill_speed": "100",
+      "gap_infill_speed": "80"
+    }
+  },
+  "pin_base_layer_height": "0.2",
+  "filament_presets": {
+    "PLA": "CR-PLA @Sermoon D3-all",
+    "PETG": "CR-PETG @Sermoon D3-all",
+    "ABS": "Generic ABS @Sermoon D3-all",
+    "TPU": "CR-TPU @Sermoon D3-all"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

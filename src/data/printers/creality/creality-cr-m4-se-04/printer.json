@@ -1,0 +1,47 @@
+{
+  "id": "creality-cr-m4-se-04",
+  "label": "Creality CR-M4 SE 0.40 mm",
+  "printer_model": "Creality CR-M4 SE",
+  "printer_settings_id": "Creality CR-M4 SE 0.4 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality CR-M4 SE 0.4 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 1,
+  "slot_system": "monofilamento (1 bico, sem CFS)",
+  "multi_material": false,
+  "nozzle_diameter": 0.4,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 280,
+    "bed_max_c": 90,
+    "max_speed_mm_s": 500,
+    "max_accel_mm_s2": 8000
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.1": "0.1mm Standard @Creality CR-M4 SE 0.4 nozzle",
+    "0.2": "0.20mm Standard @Creality CR-M4 SE 0.4 nozzle"
+  },
+  "layer_speeds": {
+    "0.1": {
+      "sparse_infill_speed": "300",
+      "internal_solid_infill_speed": "300",
+      "gap_infill_speed": "100"
+    },
+    "0.2": {
+      "sparse_infill_speed": "300",
+      "internal_solid_infill_speed": "300",
+      "gap_infill_speed": "80"
+    }
+  },
+  "pin_base_layer_height": "0.2",
+  "filament_presets": {
+    "PLA": "Generic PLA @Creality",
+    "PETG": "CR-PETG @CR-M4 SE-all",
+    "ABS": "Hyper ABS @CR-M4 SE-all",
+    "ASA": "HP-ASA @CR-M4 SE-all",
+    "TPU": "HP-TPU @CR-M4 SE-all"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

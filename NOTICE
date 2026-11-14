@@ -1,0 +1,105 @@
+NOTICE — @extruvo/converter (AGPL-3.0)
+=======================================
+
+Este módulo é publicado sob AGPL-3.0 (ver LICENSE) porque contém dados
+derivados de perfis do OrcaSlicer / Flash Studio (AGPL-3.0). A lógica de
+cópia de ajustes do autor, decodificação de pintura, uso de filamentos e
+reposicionamento de placas foi adaptada de iChristGit/3MF-to-AD5X (MIT).
+O módulo NÃO contém código do SlicerBridge (GPL-3.0): esse projeto foi
+intencionalmente não copiado e não consultado durante a implementação.
+
+Resumo de origem por item
+-------------------------
+
+| Item                                              | Origem                                                                 | Licença               |
+| ------------------------------------------------- | ---------------------------------------------------------------------- | --------------------- |
+| src/engine.ts, model3mf.ts, util.ts (partes)      | Adaptação de iChristGit/3MF-to-AD5X (`bambu2ad5x.py`, commit e20f81e)  | MIT © 2026 iChristGit |
+| src/data/bambu_to_orca.json                       | Tabelas extraídas do mesmo `bambu2ad5x.py` por `tools/extract_mapping` | MIT © 2026 iChristGit |
+| src/data/printers/ad5x/template.json              | `ad5x_template.json` do 3MF-to-AD5X (OrcaSlicer 2.3.2, perfil oficial) | MIT (valores derivam de perfis OrcaSlicer, AGPL-3.0) |
+| src/data/printers/adventurer5m*/template.json,    | Gerados por `tools/build_templates.py` resolvendo a herança do         | AGPL-3.0 (OrcaSlicer/Flash Studio) |
+| src/data/printers/*/presets.generated.json,       | Flash Studio 1.7.9 AppImage (vendor Flashforge 02.01.01.00)            |                       |
+| src/data/printers/*/filaments.generated.json      |                                                                        |                       |
+| src/data/printers/creator5*/*.json                | Gerados por `scripts/build-templates.mjs` resolvendo a herança do      | AGPL-3.0 (Flash Studio Desktop) |
+|                                                   | Flash Studio Desktop (vendor Flashforge Windows)                        |                       |
+| vendor/orca-creality/40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19/ | Snapshot literal de `resources/profiles/Creality.json` e      | AGPL-3.0 (OrcaSlicer) |
+|                                                   | `resources/profiles/Creality/{machine,process,filament}/*.json` do      |                       |
+|                                                   | repositório SoftFever/OrcaSlicer na tag `v2.5.0` (commit                |                       |
+|                                                   | `40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19`, publicado 2026-11-06).      |                       |
+|                                                   | Perfis Creality oficiais, trazidos como insumo de build e NÃO           |                       |
+|                                                   | embarcados no worker. Covers (.png) / modelos (.stl) / ícones (.svg)    |                       |
+|                                                   | não foram vendoreados.                                                  |                       |
+| src/data/printers/creality/*/template.json,       | Gerados por `scripts/build-creality.mjs` resolvendo a herança           | AGPL-3.0 (derivados   |
+| src/data/printers/creality/*/presets.generated.json, | (processo → filamento → máquina) dos perfis vendoreados acima.       | dos perfis            |
+| src/data/printers/creality/*/filaments.generated.json, | O script usa a skeleton AD5X para fixar o conjunto de chaves.        | OrcaSlicer/Creality)  |
+| src/data/printers/creality/*/printer.json,        |                                                                         |                       |
+| src/data/printers/creality/index.generated.ts,    |                                                                         |                       |
+| src/data/printers/creality/registry.generated.json |                                                                        |                       |
+| src/data/printers/*/printer.json                  | Metadados (limites, slots, aliases) escritos para este módulo           | AGPL-3.0 (parte deste módulo) |
+
+Cumprimento §13 AGPL (SaaS / "network use")
+-------------------------------------------
+
+Quando este módulo for servido pela rede (SaaS público do Extruvo, por
+exemplo), o Extruvo DEVE oferecer o código-fonte correspondente aos
+usuários da rede. Hoje o Extruvo roda localmente / em VPS privada do
+operador, sem SaaS público ligado ao conversor. Antes de publicar:
+
+1. Publicar este módulo em um repositório público com a mesma licença
+   AGPL-3.0. A URL do repositório vai em `CONVERTER_SOURCE_URL` no
+   aplicativo (hoje aponta para uma constante local pendente).
+2. Expor um link visível ("Código-fonte do conversor (AGPL-3.0)") em
+   qualquer tela do aplicativo que ofereça a conversão.
+3. Manter sincronia entre a versão pública do módulo e a versão
+   servida ao usuário (mesmo `engine.version`).
+
+Alternativas aceitas pela AGPL — porém NÃO adotadas aqui:
+
+- Gerar templates no computador do usuário a partir do Orca/Flash Studio
+  dele (sem embutir os perfis derivados no SaaS).
+- Obter permissão escrita da Flashforge/Orca para redistribuição sob
+  outros termos.
+
+Atribuição MIT (iChristGit/3MF-to-AD5X)
+---------------------------------------
+
+Partes de `src/engine.ts`, `src/model3mf.ts`, `src/util.ts` e os dados em
+`src/data/bambu_to_orca.json` derivam de bambu2ad5x.py (MIT). Cópia
+integral da licença MIT original no cabeçalho:
+
+Atribuição SoftFever/OrcaSlicer (AGPL-3.0)
+------------------------------------------
+
+Os perfis Creality dentro de `vendor/orca-creality/<hash>/Creality/` e os
+arquivos derivados em `src/data/printers/creality/` são cópias/dados
+derivados do repositório https://github.com/SoftFever/OrcaSlicer na tag
+`v2.5.0`, commit `40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19`
+(publicado 2026-11-06 por SoftFever). OrcaSlicer é distribuído sob
+AGPL-3.0; o módulo e tudo que depende desses dados permanecem AGPL-3.0.
+Para regenerar após trocar o pin:
+
+    node modules/extruvo-converter/scripts/build-creality.mjs \
+      --profiles modules/extruvo-converter/vendor/orca-creality/<hash>/Creality \
+      --hash <hash> --tag <tag>
+
+
+
+MIT License
+Copyright (c) 2026 iChristGit
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

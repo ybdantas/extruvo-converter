@@ -1,0 +1,70 @@
+{
+  "_origem": "gerado por modules/extruvo-converter/scripts/build-creality.mjs a partir dos perfis Creality do OrcaSlicer (AGPL-3.0)",
+  "profile_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "machine_gcode_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "machine": "Creality Ender-3 V4 0.4 nozzle",
+  "machine_gcode": {
+    "machine_start_gcode": "M140 S0\nM104 S0 \nSTART_PRINT EXTRUDER_TEMP=[nozzle_temperature_initial_layer] BED_TEMP=[bed_temperature_initial_layer_single]\nT[initial_no_support_extruder]\nM109 S[nozzle_temperature_initial_layer]\nM204 S2000\nG1 Z3 F600\nM83\nG1 X20 Y-1 F30000\nG1 Z0.3 F1200\nG1 X100 E10  F{filament_max_volumetric_speed[initial_extruder]/0.3*60}\nG1 X105 E.3742  F{outer_wall_volumetric_speed/(0.3*0.5)/4*60}\nG1 X110 E.3742  F{outer_wall_volumetric_speed/(0.3*0.5)*60}\nG1 X115 E.3742  F{outer_wall_volumetric_speed/(0.3*0.5)/4*60}\nG1 X120 E.3742  F{outer_wall_volumetric_speed/(0.3*0.5)*60}\nG1 X125 E.3742  F{outer_wall_volumetric_speed/(0.3*0.5)/4*60}\nG91\nG1 X1 Z-0.300\nG1 X4\nG92 E0\nG1 Z1 F1200",
+    "machine_end_gcode": "END_PRINT",
+    "before_layer_change_gcode": ";BEFORE_LAYER_CHANGE\n;[layer_z]\nG92 E0\n",
+    "layer_change_gcode": "",
+    "change_filament_gcode": "G2 Z{z_after_toolchange + 0.4} I0.86 J0.86 P1 F10000 ; spiral lift a little from second lift\nG1 X215 Y110 F30000\nG1 Z{z_after_toolchange} F600",
+    "machine_pause_gcode": "PAUSE"
+  },
+  "process_presets": {
+    "0.16": {
+      "name": "0.16mm Fine @Creality Ender-3 V4 0.4 nozzle",
+      "speeds": {
+        "sparse_infill_speed": "320",
+        "internal_solid_infill_speed": "270",
+        "gap_infill_speed": "200"
+      }
+    },
+    "0.2": {
+      "name": "0.20mm Standard @Creality Ender-3 V4 0.4 nozzle",
+      "speeds": {
+        "sparse_infill_speed": "250",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "200"
+      }
+    },
+    "0.24": {
+      "name": "0.24mm Draft @Creality Ender-3 V4 0.4 nozzle",
+      "speeds": {
+        "sparse_infill_speed": "230",
+        "internal_solid_infill_speed": "230",
+        "gap_infill_speed": "200"
+      }
+    },
+    "0.28": {
+      "name": "0.28mm SuperDraft @Creality Ender-3 V4 0.4 nozzle",
+      "speeds": {
+        "sparse_infill_speed": "200",
+        "internal_solid_infill_speed": "200",
+        "gap_infill_speed": "200"
+      }
+    }
+  },
+  "filament_presets": {
+    "PLA": {
+      "name": "Generic PLA @Ender-3 V4-all",
+      "compativel": true
+    },
+    "PLA-CF": {
+      "name": "Generic PLA-CF @Ender-3 V4-all",
+      "compativel": true
+    },
+    "PETG": {
+      "name": "Generic PETG @Ender-3 V4-all",
+      "compativel": true
+    },
+    "ABS": {
+      "name": "Generic ABS @Ender-3 V4-all",
+      "compativel": true
+    },
+    "TPU": {
+      "name": "Generic TPU @Ender-3 V4-all",
+      "compativel": true
+    }
+  }
+}

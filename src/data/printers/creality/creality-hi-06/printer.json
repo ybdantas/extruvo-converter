@@ -1,0 +1,56 @@
+{
+  "id": "creality-hi-06",
+  "label": "Creality Hi 0.60 mm",
+  "printer_model": "Creality Hi",
+  "printer_settings_id": "Creality Hi 0.6 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality Hi 0.6 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 1,
+  "slot_system": "monofilamento (1 bico, sem CFS)",
+  "multi_material": false,
+  "nozzle_diameter": 0.6,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 270,
+    "bed_max_c": 105,
+    "max_speed_mm_s": 300,
+    "max_accel_mm_s2": 12000,
+    "chamber_max_c": 60
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.24": "0.24mm Optimal @Creality Hi",
+    "0.3": "0.30mm Standard @Creality Hi",
+    "0.36": "0.36mm Draft @Creality Hi"
+  },
+  "layer_speeds": {
+    "0.24": {
+      "sparse_infill_speed": "150",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.3": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "100",
+      "gap_infill_speed": "50"
+    },
+    "0.36": {
+      "sparse_infill_speed": "150",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    }
+  },
+  "pin_base_layer_height": "0.24",
+  "filament_presets": {
+    "PLA": "Generic PLA @Creality Hi-all",
+    "PLA-CF": "Generic PLA-CF @Creality Hi-all",
+    "PETG": "Generic PETG @Creality Hi-all",
+    "PETG-CF": "Generic PETG-CF @Creality Hi-all",
+    "ABS": "Generic ABS @Creality Hi-all",
+    "ASA": "Generic ASA @Creality Hi-all",
+    "TPU": "Generic TPU @Creality Hi-all"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

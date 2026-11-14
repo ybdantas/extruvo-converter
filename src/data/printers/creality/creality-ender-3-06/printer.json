@@ -1,0 +1,66 @@
+{
+  "id": "creality-ender-3-06",
+  "label": "Creality Ender-3 0.60 mm",
+  "printer_model": "Creality Ender-3",
+  "printer_settings_id": "Creality Ender-3 0.6 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality Ender-3 0.6 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 1,
+  "slot_system": "monofilamento (1 bico, sem CFS)",
+  "multi_material": false,
+  "nozzle_diameter": 0.6,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 300,
+    "bed_max_c": 105,
+    "max_speed_mm_s": 500,
+    "max_accel_mm_s2": 500
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.12": "0.12mm Fine @Creality Ender3 0.6",
+    "0.16": "0.16mm Optimal @Creality Ender3 0.6",
+    "0.2": "0.20mm Standard @Creality Ender3 0.6",
+    "0.24": "0.24mm Draft @Creality Ender3 0.6",
+    "0.28": "0.28mm Draft @Creality Ender3 0.6"
+  },
+  "layer_speeds": {
+    "0.12": {
+      "sparse_infill_speed": "60",
+      "internal_solid_infill_speed": "50",
+      "gap_infill_speed": "30"
+    },
+    "0.16": {
+      "sparse_infill_speed": "60",
+      "internal_solid_infill_speed": "50",
+      "gap_infill_speed": "30"
+    },
+    "0.2": {
+      "sparse_infill_speed": "60",
+      "internal_solid_infill_speed": "50",
+      "gap_infill_speed": "30"
+    },
+    "0.24": {
+      "sparse_infill_speed": "60",
+      "internal_solid_infill_speed": "50",
+      "gap_infill_speed": "30"
+    },
+    "0.28": {
+      "sparse_infill_speed": "60",
+      "internal_solid_infill_speed": "50",
+      "gap_infill_speed": "30"
+    }
+  },
+  "pin_base_layer_height": "0.2",
+  "filament_presets": {
+    "PLA": "Generic PLA @Creality",
+    "PLA-CF": "Generic PLA-CF @Creality",
+    "PETG": "Generic PETG @Creality",
+    "ABS": "Generic ABS @Creality",
+    "ASA": "Generic ASA @Creality",
+    "PA-CF": "Generic PA-CF @Creality"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

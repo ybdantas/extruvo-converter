@@ -1,0 +1,51 @@
+{
+  "id": "creality-ender-3-neo-04",
+  "label": "Creality Ender-3 Neo 0.40 mm",
+  "printer_model": "Creality Ender-3 Neo",
+  "printer_settings_id": "Creality Ender-3 Neo 0.4 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality Ender-3 Neo 0.4 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 1,
+  "slot_system": "monofilamento (1 bico, sem CFS)",
+  "multi_material": false,
+  "nozzle_diameter": 0.4,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 270,
+    "bed_max_c": 105,
+    "max_speed_mm_s": 500,
+    "max_accel_mm_s2": 10000
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.08": "0.08mm Extra Fine @Creality Ender-3 Neo 0.4 nozzle",
+    "0.16": "0.16mm Optimal @Creality Ender-3 Neo 0.4 nozzle",
+    "0.2": "0.20mm Standard @Creality Ender-3 Neo 0.4 nozzle"
+  },
+  "layer_speeds": {
+    "0.08": {
+      "sparse_infill_speed": "60",
+      "internal_solid_infill_speed": "60",
+      "gap_infill_speed": "40"
+    },
+    "0.16": {
+      "sparse_infill_speed": "50",
+      "internal_solid_infill_speed": "50",
+      "gap_infill_speed": "30"
+    },
+    "0.2": {
+      "sparse_infill_speed": "50",
+      "internal_solid_infill_speed": "50",
+      "gap_infill_speed": "30"
+    }
+  },
+  "pin_base_layer_height": "0.2",
+  "filament_presets": {
+    "PLA": "Generic PLA @Ender-3 Neo-all",
+    "PETG": "Generic PETG @Ender-3 Neo-all",
+    "ABS": "Generic ABS @Ender-3 Neo-all"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

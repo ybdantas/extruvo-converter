@@ -1,0 +1,74 @@
+{
+  "_origem": "gerado por tools/build_templates.py a partir dos perfis Flashforge (AGPL-3.0)",
+  "profile_source": "Flash Studio 1.7.9 (AppImage Linux oficial, vendor Flashforge 02.01.01.00)",
+  "machine_gcode_source": "Flash Studio 1.7.9 (AppImage Linux oficial, vendor Flashforge 02.01.01.00)",
+  "machine": "Flashforge Adventurer 5M Pro 0.4 Nozzle",
+  "machine_gcode": {
+    "machine_start_gcode": "M190 S[bed_temperature_initial_layer_single]\nM104 S[nozzle_temperature_initial_layer]\nG90\nM83\nG1 Z5 F6000\nG1 E-0.2 F800\nG1 X110 Y-110 F6000\nG1 E2 F800\nG1 Y-110 X55 Z0.25 F4800\nG1 X-55 E8 F2400\nG1 Y-109.6 F2400\nG1 X55 E5 F2400\nG1 Y-110 X55 Z0.45 F4800\nG1 X-55 E8 F2400\nG1 Y-109.6 F2400\nG1 X55 E5 F2400\nG92 E0",
+    "machine_end_gcode": "G1 E-3 F3600\nG0 X50 Y50 F30000\nM104 S0 ; turn off temperature",
+    "before_layer_change_gcode": ";BEFORE_LAYER_CHANGE\n;[layer_z]",
+    "layer_change_gcode": ";AFTER_LAYER_CHANGE\n;[layer_z]",
+    "change_filament_gcode": "",
+    "machine_pause_gcode": "PAUSE",
+    "template_custom_gcode": "",
+    "time_lapse_gcode": "",
+    "change_extrusion_role_gcode": "",
+    "printing_by_object_gcode": ""
+  },
+  "process_presets": {
+    "0.12": {
+      "name": "0.12mm Fine @Flashforge AD5M Pro 0.4 Nozzle",
+      "speeds": {
+        "sparse_infill_speed": "270",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "200"
+      }
+    },
+    "0.2": {
+      "name": "0.20mm Standard @Flashforge AD5M Pro 0.4 Nozzle",
+      "speeds": {
+        "sparse_infill_speed": "270",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "200"
+      }
+    },
+    "0.24": {
+      "name": "0.24mm Draft @Flashforge AD5M Pro 0.4 Nozzle",
+      "speeds": {
+        "sparse_infill_speed": "270",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "200"
+      }
+    }
+  },
+  "filament_presets": {
+    "PLA": {
+      "name": "Flashforge PLA Basic",
+      "compativel": true
+    },
+    "PLA-CF": {
+      "name": "Flashforge PLA-CF",
+      "compativel": true
+    },
+    "PETG": {
+      "name": "Flashforge PETG Pro",
+      "compativel": true
+    },
+    "PETG-CF": {
+      "name": "Flashforge PETG-CF",
+      "compativel": true
+    },
+    "ABS": {
+      "name": "Flashforge ABS Basic",
+      "compativel": true
+    },
+    "ASA": {
+      "name": "Flashforge ASA Basic",
+      "compativel": true
+    },
+    "TPU": {
+      "name": "Flashforge TPU 95A",
+      "compativel": true
+    }
+  }
+}

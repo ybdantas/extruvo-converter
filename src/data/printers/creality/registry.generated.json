@@ -1,0 +1,1845 @@
+{
+  "_origem": "gerado por modules/extruvo-converter/scripts/build-creality.mjs",
+  "profile_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "commit": "40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19",
+  "tag": "v2.5.0",
+  "count": 108,
+  "printers": [
+    {
+      "id": "creality-cr-10-04",
+      "dir": "creality-cr-10-04",
+      "label": "Creality CR-10 0.40 mm",
+      "model_family": "CR-10",
+      "machineName": "Creality CR-10 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-10-max-04",
+      "dir": "creality-cr-10-max-04",
+      "label": "Creality CR-10 Max 0.40 mm",
+      "model_family": "CR-10 Max",
+      "machineName": "Creality CR-10 Max 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "450x0",
+        "450x450",
+        "0x450"
+      ],
+      "printable_height": "470"
+    },
+    {
+      "id": "creality-cr-10-se-02",
+      "dir": "creality-cr-10-se-02",
+      "label": "Creality CR-10 SE 0.20 mm",
+      "model_family": "CR-10 SE",
+      "machineName": "Creality CR-10 SE 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "265"
+    },
+    {
+      "id": "creality-cr-10-se-04",
+      "dir": "creality-cr-10-se-04",
+      "label": "Creality CR-10 SE 0.40 mm",
+      "model_family": "CR-10 SE",
+      "machineName": "Creality CR-10 SE 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "265"
+    },
+    {
+      "id": "creality-cr-10-se-06",
+      "dir": "creality-cr-10-se-06",
+      "label": "Creality CR-10 SE 0.60 mm",
+      "model_family": "CR-10 SE",
+      "machineName": "Creality CR-10 SE 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "265"
+    },
+    {
+      "id": "creality-cr-10-se-08",
+      "dir": "creality-cr-10-se-08",
+      "label": "Creality CR-10 SE 0.80 mm",
+      "model_family": "CR-10 SE",
+      "machineName": "Creality CR-10 SE 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "265"
+    },
+    {
+      "id": "creality-cr-10-smart-04",
+      "dir": "creality-cr-10-smart-04",
+      "label": "Creality CR-10 Smart 0.40 mm",
+      "model_family": "CR-10 Smart",
+      "machineName": "Creality CR-10 Smart 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-10-smart-pro-04",
+      "dir": "creality-cr-10-smart-pro-04",
+      "label": "Creality CR-10 Smart Pro 0.40 mm",
+      "model_family": "CR-10 Smart Pro",
+      "machineName": "Creality CR-10 Smart Pro 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-10-v2-04",
+      "dir": "creality-cr-10-v2-04",
+      "label": "Creality CR-10 V2 0.40 mm",
+      "model_family": "CR-10 V2",
+      "machineName": "Creality CR-10 V2 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-10-v3-04",
+      "dir": "creality-cr-10-v3-04",
+      "label": "Creality CR-10 V3 0.40 mm",
+      "model_family": "CR-10 V3",
+      "machineName": "Creality CR-10 V3 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "5x5",
+        "305x5",
+        "305x305",
+        "5x305"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-10-v3-06",
+      "dir": "creality-cr-10-v3-06",
+      "label": "Creality CR-10 V3 0.60 mm",
+      "model_family": "CR-10 V3",
+      "machineName": "Creality CR-10 V3 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "5x5",
+        "305x5",
+        "305x305",
+        "5x305"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-10s-pro-v2-04",
+      "dir": "creality-cr-10s-pro-v2-04",
+      "label": "Creality CR-10S Pro V2 0.40 mm",
+      "model_family": "CR-10S Pro V2",
+      "machineName": "Creality CR-10S Pro V2 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-20-pro-04",
+      "dir": "creality-cr-20-pro-04",
+      "label": "Creality CR-20 Pro 0.40 mm",
+      "model_family": "CR-20 Pro",
+      "machineName": "Creality CR-20 Pro 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-cr-6-max-02",
+      "dir": "creality-cr-6-max-02",
+      "label": "Creality CR-6 Max 0.20 mm",
+      "model_family": "CR-6 Max",
+      "machineName": "Creality CR-6 Max 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "5x5",
+        "395x5",
+        "395x395",
+        "5x395"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-6-max-04",
+      "dir": "creality-cr-6-max-04",
+      "label": "Creality CR-6 Max 0.40 mm",
+      "model_family": "CR-6 Max",
+      "machineName": "Creality CR-6 Max 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "5x5",
+        "395x5",
+        "395x395",
+        "5x395"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-6-max-06",
+      "dir": "creality-cr-6-max-06",
+      "label": "Creality CR-6 Max 0.60 mm",
+      "model_family": "CR-6 Max",
+      "machineName": "Creality CR-6 Max 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "5x5",
+        "395x5",
+        "395x395",
+        "5x395"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-6-max-08",
+      "dir": "creality-cr-6-max-08",
+      "label": "Creality CR-6 Max 0.80 mm",
+      "model_family": "CR-6 Max",
+      "machineName": "Creality CR-6 Max 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "5x5",
+        "395x5",
+        "395x395",
+        "5x395"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-cr-6-se-02",
+      "dir": "creality-cr-6-se-02",
+      "label": "Creality CR-6 SE 0.20 mm",
+      "model_family": "CR-6 SE",
+      "machineName": "Creality CR-6 SE 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "5x0",
+        "230x0",
+        "230x235",
+        "5x235"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-cr-6-se-04",
+      "dir": "creality-cr-6-se-04",
+      "label": "Creality CR-6 SE 0.40 mm",
+      "model_family": "CR-6 SE",
+      "machineName": "Creality CR-6 SE 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "5x0",
+        "230x0",
+        "230x235",
+        "5x235"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-cr-6-se-06",
+      "dir": "creality-cr-6-se-06",
+      "label": "Creality CR-6 SE 0.60 mm",
+      "model_family": "CR-6 SE",
+      "machineName": "Creality CR-6 SE 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "5x0",
+        "230x0",
+        "230x235",
+        "5x235"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-cr-6-se-08",
+      "dir": "creality-cr-6-se-08",
+      "label": "Creality CR-6 SE 0.80 mm",
+      "model_family": "CR-6 SE",
+      "machineName": "Creality CR-6 SE 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "5x0",
+        "230x0",
+        "230x235",
+        "5x235"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-cr-m4-04",
+      "dir": "creality-cr-m4-04",
+      "label": "Creality CR-M4 0.40 mm",
+      "model_family": "CR-M4",
+      "machineName": "Creality CR-M4 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "450x0",
+        "450x450",
+        "0x450"
+      ],
+      "printable_height": "470"
+    },
+    {
+      "id": "creality-cr-m4-se-04",
+      "dir": "creality-cr-m4-se-04",
+      "label": "Creality CR-M4 SE 0.40 mm",
+      "model_family": "CR-M4 SE",
+      "machineName": "Creality CR-M4 SE 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "420x0",
+        "420x420",
+        "0x420"
+      ],
+      "printable_height": "420"
+    },
+    {
+      "id": "creality-ender-2-pro-04",
+      "dir": "creality-ender-2-pro-04",
+      "label": "Creality Ender-2 Pro 0.40 mm",
+      "model_family": "Ender-2 Pro",
+      "machineName": "Creality Ender-2 Pro 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "165x0",
+        "165x165",
+        "0x165"
+      ],
+      "printable_height": "180"
+    },
+    {
+      "id": "creality-ender-3-02",
+      "dir": "creality-ender-3-02",
+      "label": "Creality Ender-3 0.20 mm",
+      "model_family": "Ender-3",
+      "machineName": "Creality Ender-3 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-04",
+      "dir": "creality-ender-3-04",
+      "label": "Creality Ender-3 0.40 mm",
+      "model_family": "Ender-3",
+      "machineName": "Creality Ender-3 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-06",
+      "dir": "creality-ender-3-06",
+      "label": "Creality Ender-3 0.60 mm",
+      "model_family": "Ender-3",
+      "machineName": "Creality Ender-3 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-08",
+      "dir": "creality-ender-3-08",
+      "label": "Creality Ender-3 0.80 mm",
+      "model_family": "Ender-3",
+      "machineName": "Creality Ender-3 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-max-04",
+      "dir": "creality-ender-3-max-04",
+      "label": "Creality Ender-3 Max 0.40 mm",
+      "model_family": "Ender-3 Max",
+      "machineName": "Creality Ender-3 Max 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "340"
+    },
+    {
+      "id": "creality-ender-3-max-neo-04",
+      "dir": "creality-ender-3-max-neo-04",
+      "label": "Creality Ender-3 Max Neo 0.40 mm",
+      "model_family": "Ender-3 Max Neo",
+      "machineName": "Creality Ender-3 Max Neo 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "320"
+    },
+    {
+      "id": "creality-ender-3-neo-04",
+      "dir": "creality-ender-3-neo-04",
+      "label": "Creality Ender-3 Neo 0.40 mm",
+      "model_family": "Ender-3 Neo",
+      "machineName": "Creality Ender-3 Neo 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-pro-02",
+      "dir": "creality-ender-3-pro-02",
+      "label": "Creality Ender-3 Pro 0.20 mm",
+      "model_family": "Ender-3 Pro",
+      "machineName": "Creality Ender-3 Pro 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-pro-04",
+      "dir": "creality-ender-3-pro-04",
+      "label": "Creality Ender-3 Pro 0.40 mm",
+      "model_family": "Ender-3 Pro",
+      "machineName": "Creality Ender-3 Pro 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-pro-06",
+      "dir": "creality-ender-3-pro-06",
+      "label": "Creality Ender-3 Pro 0.60 mm",
+      "model_family": "Ender-3 Pro",
+      "machineName": "Creality Ender-3 Pro 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-pro-08",
+      "dir": "creality-ender-3-pro-08",
+      "label": "Creality Ender-3 Pro 0.80 mm",
+      "model_family": "Ender-3 Pro",
+      "machineName": "Creality Ender-3 Pro 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-s1-04",
+      "dir": "creality-ender-3-s1-04",
+      "label": "Creality Ender-3 S1 0.40 mm",
+      "model_family": "Ender-3 S1",
+      "machineName": "Creality Ender-3 S1 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "270"
+    },
+    {
+      "id": "creality-ender-3-s1-plus-02",
+      "dir": "creality-ender-3-s1-plus-02",
+      "label": "Creality Ender-3 S1 Plus 0.20 mm",
+      "model_family": "Ender-3 S1 Plus",
+      "machineName": "Creality Ender-3 S1 Plus 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-ender-3-s1-plus-04",
+      "dir": "creality-ender-3-s1-plus-04",
+      "label": "Creality Ender-3 S1 Plus 0.40 mm",
+      "model_family": "Ender-3 S1 Plus",
+      "machineName": "Creality Ender-3 S1 Plus 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-ender-3-s1-plus-06",
+      "dir": "creality-ender-3-s1-plus-06",
+      "label": "Creality Ender-3 S1 Plus 0.60 mm",
+      "model_family": "Ender-3 S1 Plus",
+      "machineName": "Creality Ender-3 S1 Plus 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-ender-3-s1-plus-08",
+      "dir": "creality-ender-3-s1-plus-08",
+      "label": "Creality Ender-3 S1 Plus 0.80 mm",
+      "model_family": "Ender-3 S1 Plus",
+      "machineName": "Creality Ender-3 S1 Plus 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-ender-3-s1-pro-04",
+      "dir": "creality-ender-3-s1-pro-04",
+      "label": "Creality Ender-3 S1 Pro 0.40 mm",
+      "model_family": "Ender-3 S1 Pro",
+      "machineName": "Creality Ender-3 S1 Pro 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "270"
+    },
+    {
+      "id": "creality-ender-3-s1-sonic-04",
+      "dir": "creality-ender-3-s1-sonic-04",
+      "label": "Creality Ender-3 S1 Sonic 0.40 mm",
+      "model_family": "Ender-3 S1 Sonic",
+      "machineName": "Creality Ender-3 S1 Sonic 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "230x0",
+        "230x230",
+        "0x230"
+      ],
+      "printable_height": "270"
+    },
+    {
+      "id": "creality-ender-3-v2-04",
+      "dir": "creality-ender-3-v2-04",
+      "label": "Creality Ender-3 V2 0.40 mm",
+      "model_family": "Ender-3 V2",
+      "machineName": "Creality Ender-3 V2 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-v2-neo-04",
+      "dir": "creality-ender-3-v2-neo-04",
+      "label": "Creality Ender-3 V2 Neo 0.40 mm",
+      "model_family": "Ender-3 V2 Neo",
+      "machineName": "Creality Ender-3 V2 Neo 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-v3-04",
+      "dir": "creality-ender-3-v3-04",
+      "label": "Creality Ender-3 V3 0.40 mm",
+      "model_family": "Ender-3 V3",
+      "machineName": "Creality Ender-3 V3 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-v3-06",
+      "dir": "creality-ender-3-v3-06",
+      "label": "Creality Ender-3 V3 0.60 mm",
+      "model_family": "Ender-3 V3",
+      "machineName": "Creality Ender-3 V3 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-v3-08",
+      "dir": "creality-ender-3-v3-08",
+      "label": "Creality Ender-3 V3 0.80 mm",
+      "model_family": "Ender-3 V3",
+      "machineName": "Creality Ender-3 V3 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-v3-ke-04",
+      "dir": "creality-ender-3-v3-ke-04",
+      "label": "Creality Ender-3 V3 KE 0.40 mm",
+      "model_family": "Ender-3 V3 KE",
+      "machineName": "Creality Ender-3 V3 KE 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "245"
+    },
+    {
+      "id": "creality-ender-3-v3-plus-04",
+      "dir": "creality-ender-3-v3-plus-04",
+      "label": "Creality Ender-3 V3 Plus 0.40 mm",
+      "model_family": "Ender-3 V3 Plus",
+      "machineName": "Creality Ender-3 V3 Plus 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "330"
+    },
+    {
+      "id": "creality-ender-3-v3-plus-06",
+      "dir": "creality-ender-3-v3-plus-06",
+      "label": "Creality Ender-3 V3 Plus 0.60 mm",
+      "model_family": "Ender-3 V3 Plus",
+      "machineName": "Creality Ender-3 V3 Plus 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "330"
+    },
+    {
+      "id": "creality-ender-3-v3-plus-08",
+      "dir": "creality-ender-3-v3-plus-08",
+      "label": "Creality Ender-3 V3 Plus 0.80 mm",
+      "model_family": "Ender-3 V3 Plus",
+      "machineName": "Creality Ender-3 V3 Plus 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "330"
+    },
+    {
+      "id": "creality-ender-3-v3-se-02",
+      "dir": "creality-ender-3-v3-se-02",
+      "label": "Creality Ender-3 V3 SE 0.20 mm",
+      "model_family": "Ender-3 V3 SE",
+      "machineName": "Creality Ender-3 V3 SE 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-v3-se-04",
+      "dir": "creality-ender-3-v3-se-04",
+      "label": "Creality Ender-3 V3 SE 0.40 mm",
+      "model_family": "Ender-3 V3 SE",
+      "machineName": "Creality Ender-3 V3 SE 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-v3-se-06",
+      "dir": "creality-ender-3-v3-se-06",
+      "label": "Creality Ender-3 V3 SE 0.60 mm",
+      "model_family": "Ender-3 V3 SE",
+      "machineName": "Creality Ender-3 V3 SE 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-v3-se-08",
+      "dir": "creality-ender-3-v3-se-08",
+      "label": "Creality Ender-3 V3 SE 0.80 mm",
+      "model_family": "Ender-3 V3 SE",
+      "machineName": "Creality Ender-3 V3 SE 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-ender-3-v4-04",
+      "dir": "creality-ender-3-v4-04",
+      "label": "Creality Ender-3 V4 0.40 mm",
+      "model_family": "Ender-3 V4",
+      "machineName": "Creality Ender-3 V4 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "235"
+    },
+    {
+      "id": "creality-ender-5-04",
+      "dir": "creality-ender-5-04",
+      "label": "Creality Ender-5 0.40 mm",
+      "model_family": "Ender-5",
+      "machineName": "Creality Ender-5 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-ender-5-max-04",
+      "dir": "creality-ender-5-max-04",
+      "label": "Creality Ender-5 Max 0.40 mm",
+      "model_family": "Ender-5 Max",
+      "machineName": "Creality Ender-5 Max 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "400x0",
+        "400x400",
+        "0x400"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-ender-5-plus-04",
+      "dir": "creality-ender-5-plus-04",
+      "label": "Creality Ender-5 Plus 0.40 mm",
+      "model_family": "Ender-5 Plus",
+      "machineName": "Creality Ender-5 Plus 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "350x0",
+        "350x350",
+        "0x350"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-ender-5-pro-2019-04",
+      "dir": "creality-ender-5-pro-2019-04",
+      "label": "Creality Ender-5 Pro (2019) 0.40 mm",
+      "model_family": "Ender-5 Pro (2019)",
+      "machineName": "Creality Ender-5 Pro (2019) 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-ender-5-s1-04",
+      "dir": "creality-ender-5-s1-04",
+      "label": "Creality Ender-5 S1 0.40 mm",
+      "model_family": "Ender-5 S1",
+      "machineName": "Creality Ender-5 S1 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-ender-5-s1-sonic-04",
+      "dir": "creality-ender-5-s1-sonic-04",
+      "label": "Creality Ender-5 S1 Sonic 0.40 mm",
+      "model_family": "Ender-5 S1 Sonic",
+      "machineName": "Creality Ender-5 S1 Sonic 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "280"
+    },
+    {
+      "id": "creality-ender-5s-04",
+      "dir": "creality-ender-5s-04",
+      "label": "Creality Ender-5S 0.40 mm",
+      "model_family": "Ender-5S",
+      "machineName": "Creality Ender-5S 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-ender-6-04",
+      "dir": "creality-ender-6-04",
+      "label": "Creality Ender-6 0.40 mm",
+      "model_family": "Ender-6",
+      "machineName": "Creality Ender-6 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "250x0",
+        "250x250",
+        "0x250"
+      ],
+      "printable_height": "400"
+    },
+    {
+      "id": "creality-hi-02",
+      "dir": "creality-hi-02",
+      "label": "Creality Hi 0.20 mm",
+      "model_family": "Hi",
+      "machineName": "Creality Hi 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-hi-04",
+      "dir": "creality-hi-04",
+      "label": "Creality Hi 0.40 mm",
+      "model_family": "Hi",
+      "machineName": "Creality Hi 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-hi-06",
+      "dir": "creality-hi-06",
+      "label": "Creality Hi 0.60 mm",
+      "model_family": "Hi",
+      "machineName": "Creality Hi 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-hi-08",
+      "dir": "creality-hi-08",
+      "label": "Creality Hi 0.80 mm",
+      "model_family": "Hi",
+      "machineName": "Creality Hi 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-k1-04",
+      "dir": "creality-k1-04",
+      "label": "Creality K1 0.40 mm",
+      "model_family": "K1",
+      "machineName": "Creality K1 (0.4 nozzle)",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1-06",
+      "dir": "creality-k1-06",
+      "label": "Creality K1 0.60 mm",
+      "model_family": "K1",
+      "machineName": "Creality K1 (0.6 nozzle)",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1-08",
+      "dir": "creality-k1-08",
+      "label": "Creality K1 0.80 mm",
+      "model_family": "K1",
+      "machineName": "Creality K1 (0.8 nozzle)",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1-cfs-04",
+      "dir": "creality-k1-cfs-04",
+      "label": "Creality K1 (CFS) 0.40 mm",
+      "model_family": "K1",
+      "machineName": "Creality K1_CFS-C 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1-max-04",
+      "dir": "creality-k1-max-04",
+      "label": "Creality K1 Max 0.40 mm",
+      "model_family": "K1 Max",
+      "machineName": "Creality K1 Max (0.4 nozzle)",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-k1-max-06",
+      "dir": "creality-k1-max-06",
+      "label": "Creality K1 Max 0.60 mm",
+      "model_family": "K1 Max",
+      "machineName": "Creality K1 Max (0.6 nozzle)",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-k1-max-08",
+      "dir": "creality-k1-max-08",
+      "label": "Creality K1 Max 0.80 mm",
+      "model_family": "K1 Max",
+      "machineName": "Creality K1 Max (0.8 nozzle)",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-k1-max-cfs-04",
+      "dir": "creality-k1-max-cfs-04",
+      "label": "Creality K1 Max (CFS) 0.40 mm",
+      "model_family": "K1 Max",
+      "machineName": "Creality K1 Max_CFS-C 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-k1-se-04",
+      "dir": "creality-k1-se-04",
+      "label": "Creality K1 SE 0.40 mm",
+      "model_family": "K1 SE",
+      "machineName": "Creality K1 SE 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1-se-06",
+      "dir": "creality-k1-se-06",
+      "label": "Creality K1 SE 0.60 mm",
+      "model_family": "K1 SE",
+      "machineName": "Creality K1 SE 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1-se-08",
+      "dir": "creality-k1-se-08",
+      "label": "Creality K1 SE 0.80 mm",
+      "model_family": "K1 SE",
+      "machineName": "Creality K1 SE 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1-se-cfs-04",
+      "dir": "creality-k1-se-cfs-04",
+      "label": "Creality K1 SE (CFS) 0.40 mm",
+      "model_family": "K1 SE",
+      "machineName": "Creality K1 SE_CFS-C 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1c-04",
+      "dir": "creality-k1c-04",
+      "label": "Creality K1C 0.40 mm",
+      "model_family": "K1C",
+      "machineName": "Creality K1C 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1c-06",
+      "dir": "creality-k1c-06",
+      "label": "Creality K1C 0.60 mm",
+      "model_family": "K1C",
+      "machineName": "Creality K1C 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1c-08",
+      "dir": "creality-k1c-08",
+      "label": "Creality K1C 0.80 mm",
+      "model_family": "K1C",
+      "machineName": "Creality K1C 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k1c-cfs-04",
+      "dir": "creality-k1c-cfs-04",
+      "label": "Creality K1C (CFS) 0.40 mm",
+      "model_family": "K1C",
+      "machineName": "Creality K1C_CFS-C 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x220",
+        "0x220"
+      ],
+      "printable_height": "250"
+    },
+    {
+      "id": "creality-k2-02",
+      "dir": "creality-k2-02",
+      "label": "Creality K2 (CFS) 0.20 mm",
+      "model_family": "K2",
+      "machineName": "Creality K2 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "260"
+    },
+    {
+      "id": "creality-k2-04",
+      "dir": "creality-k2-04",
+      "label": "Creality K2 (CFS) 0.40 mm",
+      "model_family": "K2",
+      "machineName": "Creality K2 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "260"
+    },
+    {
+      "id": "creality-k2-06",
+      "dir": "creality-k2-06",
+      "label": "Creality K2 (CFS) 0.60 mm",
+      "model_family": "K2",
+      "machineName": "Creality K2 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "260"
+    },
+    {
+      "id": "creality-k2-08",
+      "dir": "creality-k2-08",
+      "label": "Creality K2 (CFS) 0.80 mm",
+      "model_family": "K2",
+      "machineName": "Creality K2 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "260"
+    },
+    {
+      "id": "creality-k2-plus-02",
+      "dir": "creality-k2-plus-02",
+      "label": "Creality K2 Plus (CFS) 0.20 mm",
+      "model_family": "K2 Plus",
+      "machineName": "Creality K2 Plus 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "350x0",
+        "350x350",
+        "0x350"
+      ],
+      "printable_height": "350"
+    },
+    {
+      "id": "creality-k2-plus-04",
+      "dir": "creality-k2-plus-04",
+      "label": "Creality K2 Plus (CFS) 0.40 mm",
+      "model_family": "K2 Plus",
+      "machineName": "Creality K2 Plus 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "350x0",
+        "350x350",
+        "0x350"
+      ],
+      "printable_height": "350"
+    },
+    {
+      "id": "creality-k2-plus-06",
+      "dir": "creality-k2-plus-06",
+      "label": "Creality K2 Plus (CFS) 0.60 mm",
+      "model_family": "K2 Plus",
+      "machineName": "Creality K2 Plus 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "350x0",
+        "350x350",
+        "0x350"
+      ],
+      "printable_height": "350"
+    },
+    {
+      "id": "creality-k2-plus-08",
+      "dir": "creality-k2-plus-08",
+      "label": "Creality K2 Plus (CFS) 0.80 mm",
+      "model_family": "K2 Plus",
+      "machineName": "Creality K2 Plus 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "350x0",
+        "350x350",
+        "0x350"
+      ],
+      "printable_height": "350"
+    },
+    {
+      "id": "creality-k2-pro-02",
+      "dir": "creality-k2-pro-02",
+      "label": "Creality K2 Pro (CFS) 0.20 mm",
+      "model_family": "K2 Pro",
+      "machineName": "Creality K2 Pro 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-k2-pro-04",
+      "dir": "creality-k2-pro-04",
+      "label": "Creality K2 Pro (CFS) 0.40 mm",
+      "model_family": "K2 Pro",
+      "machineName": "Creality K2 Pro 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-k2-pro-06",
+      "dir": "creality-k2-pro-06",
+      "label": "Creality K2 Pro (CFS) 0.60 mm",
+      "model_family": "K2 Pro",
+      "machineName": "Creality K2 Pro 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-k2-pro-08",
+      "dir": "creality-k2-pro-08",
+      "label": "Creality K2 Pro (CFS) 0.80 mm",
+      "model_family": "K2 Pro",
+      "machineName": "Creality K2 Pro 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-k2-se-04",
+      "dir": "creality-k2-se-04",
+      "label": "Creality K2 SE (CFS) 0.40 mm",
+      "model_family": "K2 SE",
+      "machineName": "Creality K2 SE 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": true,
+      "slots": 4,
+      "printable_area": [
+        "0x0",
+        "220x0",
+        "220x215",
+        "0x215"
+      ],
+      "printable_height": "245"
+    },
+    {
+      "id": "creality-sermoon-d3-04",
+      "dir": "creality-sermoon-d3-04",
+      "label": "Creality Sermoon D3 0.40 mm",
+      "model_family": "Sermoon D3",
+      "machineName": "Creality Sermoon D3 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x250",
+        "0x250"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-sermoon-d3-pro-04",
+      "dir": "creality-sermoon-d3-pro-04",
+      "label": "Creality Sermoon D3 Pro 0.40 mm",
+      "model_family": "Sermoon D3 Pro",
+      "machineName": "Creality Sermoon D3 Pro 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "290x0",
+        "290x220",
+        "0x220"
+      ],
+      "printable_height": "300"
+    },
+    {
+      "id": "creality-sermoon-m300-04",
+      "dir": "creality-sermoon-m300-04",
+      "label": "Creality Sermoon M300 0.40 mm",
+      "model_family": "Sermoon M300",
+      "machineName": "Creality Sermoon M300 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "200"
+    },
+    {
+      "id": "creality-sermoon-m300-06",
+      "dir": "creality-sermoon-m300-06",
+      "label": "Creality Sermoon M300 0.60 mm",
+      "model_family": "Sermoon M300",
+      "machineName": "Creality Sermoon M300 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "200"
+    },
+    {
+      "id": "creality-sermoon-m300-08",
+      "dir": "creality-sermoon-m300-08",
+      "label": "Creality Sermoon M300 0.80 mm",
+      "model_family": "Sermoon M300",
+      "machineName": "Creality Sermoon M300 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "300x0",
+        "300x300",
+        "0x300"
+      ],
+      "printable_height": "200"
+    },
+    {
+      "id": "creality-sermoon-v1-04",
+      "dir": "creality-sermoon-v1-04",
+      "label": "Creality Sermoon V1 0.40 mm",
+      "model_family": "Sermoon V1",
+      "machineName": "Creality Sermoon V1 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "175x0",
+        "175x175",
+        "0x175"
+      ],
+      "printable_height": "165"
+    },
+    {
+      "id": "creality-sermoon-v1-pro-04",
+      "dir": "creality-sermoon-v1-pro-04",
+      "label": "Creality Sermoon V1 Pro 0.40 mm",
+      "model_family": "Sermoon V1 Pro",
+      "machineName": "Creality Sermoon V1 Pro 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "175x0",
+        "175x175",
+        "0x175"
+      ],
+      "printable_height": "165"
+    },
+    {
+      "id": "creality-sparkx-i7-02",
+      "dir": "creality-sparkx-i7-02",
+      "label": "Creality SPARKX i7 0.20 mm",
+      "model_family": "SPARKX i7",
+      "machineName": "Creality SPARKX i7 0.2 nozzle",
+      "nozzle": 0.2,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "255"
+    },
+    {
+      "id": "creality-sparkx-i7-04",
+      "dir": "creality-sparkx-i7-04",
+      "label": "Creality SPARKX i7 0.40 mm",
+      "model_family": "SPARKX i7",
+      "machineName": "Creality SPARKX i7 0.4 nozzle",
+      "nozzle": 0.4,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "255"
+    },
+    {
+      "id": "creality-sparkx-i7-06",
+      "dir": "creality-sparkx-i7-06",
+      "label": "Creality SPARKX i7 0.60 mm",
+      "model_family": "SPARKX i7",
+      "machineName": "Creality SPARKX i7 0.6 nozzle",
+      "nozzle": 0.6,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "255"
+    },
+    {
+      "id": "creality-sparkx-i7-08",
+      "dir": "creality-sparkx-i7-08",
+      "label": "Creality SPARKX i7 0.80 mm",
+      "model_family": "SPARKX i7",
+      "machineName": "Creality SPARKX i7 0.8 nozzle",
+      "nozzle": 0.8,
+      "cfs": false,
+      "slots": 1,
+      "printable_area": [
+        "0x0",
+        "260x0",
+        "260x260",
+        "0x260"
+      ],
+      "printable_height": "255"
+    }
+  ]
+}

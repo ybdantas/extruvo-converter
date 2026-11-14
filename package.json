@@ -1,0 +1,26 @@
+{
+  "name": "@extruvo/converter",
+  "version": "0.3.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "description": "Conversor isolado Bambu/MakerWorld 3MF -> Flashforge (AD5X, Adventurer 5M, 5M Pro, Creator 5, Creator 5 Pro). Módulo AGPL-3.0 usado pelo Extruvo via protocolo de worker.",
+  "homepage": "about:blank#converter-source-url-pending-local-only",
+  "type": "module",
+  "main": "src/engine.ts",
+  "exports": {
+    ".": "./src/engine.ts",
+    "./printers": "./src/printers.ts",
+    "./protocol": "./src/protocol.ts",
+    "./worker": "./dist/converter.worker.js"
+  },
+  "engines": {
+    "node": ">=22.15.0"
+  },
+  "scripts": {
+    "build:templates": "node scripts/build-templates.mjs",
+    "build:worker": "node scripts/build-worker.mjs"
+  },
+  "peerDependencies": {
+    "jszip": "^3.10.1"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "id": "creality-sparkx-i7-06",
+  "label": "Creality SPARKX i7 0.60 mm",
+  "printer_model": "Creality SPARKX i7",
+  "printer_settings_id": "Creality SPARKX i7 0.6 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality SPARKX i7 0.6 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 1,
+  "slot_system": "monofilamento (1 bico, sem CFS)",
+  "multi_material": false,
+  "nozzle_diameter": 0.6,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 270,
+    "bed_max_c": 80,
+    "max_speed_mm_s": 500,
+    "max_accel_mm_s2": 10000
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.3": "0.30mm Standard @Creality SPARKX i7 0.6 nozzle"
+  },
+  "layer_speeds": {
+    "0.3": {
+      "sparse_infill_speed": "130",
+      "internal_solid_infill_speed": "130",
+      "gap_infill_speed": "50"
+    }
+  },
+  "pin_base_layer_height": "0.3",
+  "filament_presets": {
+    "PLA": "Generic PLA @SPARKX i7-all",
+    "PETG": "Generic PETG @SPARKX i7-all",
+    "TPU": "HP-TPU @SPARKX i7-all"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

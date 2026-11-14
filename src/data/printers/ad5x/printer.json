@@ -1,0 +1,55 @@
+{
+  "id": "ad5x",
+  "label": "Flashforge AD5X",
+  "printer_model": "Flashforge AD5X",
+  "printer_settings_id": "Flashforge AD5X 0.4 nozzle",
+  "template_origin": "3MF-to-AD5X (MIT): projeto salvo pelo OrcaSlicer 2.3.2 com o perfil oficial 'Flashforge AD5X 0.4 nozzle'. G-code de máquina mantido do template (o do Flash Studio 1.7.9 faz a linha de purga em Y-1..-1,4, fora da mesa 0..220); nomes de presets conferidos contra o Flash Studio 1.7.9, que recarrega o próprio perfil de impressora ao abrir o projeto.",
+  "trust": "validado-upstream + fatiado no Flash Studio 1.7.9 CLI e no OrcaSlicer 2.5.0 CLI; não validado na GUI nem em impressão real",
+  "filament_slots": 4,
+  "slot_system": "IFS (4 carretéis)",
+  "multi_material": true,
+  "nozzle_diameter": 0.4,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 280,
+    "bed_max_c": 110,
+    "max_speed_mm_s": 600,
+    "max_accel_mm_s2": 20000,
+    "_fonte": "Limites de temperatura: especificação publicada pela Flashforge (bico 280 °C, mesa 110 °C)."
+  },
+  "bed_type": "Textured PEI Plate",
+  "process_presets": {
+    "0.16": "0.16mm Standard @FF AD5X",
+    "0.2": "0.20mm Standard @FF AD5X",
+    "0.24": "0.24mm Draft @FF AD5X"
+  },
+  "layer_speeds": {
+    "0.16": {
+      "sparse_infill_speed": "330",
+      "internal_solid_infill_speed": "300",
+      "gap_infill_speed": "200"
+    },
+    "0.2": {
+      "sparse_infill_speed": "270",
+      "internal_solid_infill_speed": "250",
+      "gap_infill_speed": "200"
+    },
+    "0.24": {
+      "sparse_infill_speed": "230",
+      "internal_solid_infill_speed": "230",
+      "gap_infill_speed": "180"
+    }
+  },
+  "pin_base_layer_height": "0.2",
+  "filament_presets": {
+    "PLA": "Flashforge PLA Basic @FF AD5X",
+    "PLA-CF": "Flashforge PLA-CF @FF AD5X",
+    "PETG": "Flashforge PETG Pro @FF AD5X",
+    "PETG-CF": "Flashforge PETG-CF @FF AD5X",
+    "ABS": "Flashforge ABS Basic @FF AD5X",
+    "ASA": "Flashforge ASA Basic @FF AD5X",
+    "TPU": "Flashforge TPU 95A @FF AD5X"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

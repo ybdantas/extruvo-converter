@@ -1,0 +1,43 @@
+{
+  "id": "creality-ender-5-max-04",
+  "label": "Creality Ender-5 Max 0.40 mm",
+  "printer_model": "Creality Ender-5 Max",
+  "printer_settings_id": "Creality Ender-5 Max 0.4 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality Ender-5 Max 0.4 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 1,
+  "slot_system": "monofilamento (1 bico, sem CFS)",
+  "multi_material": false,
+  "nozzle_diameter": 0.4,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 300,
+    "bed_max_c": 110,
+    "max_speed_mm_s": 1000,
+    "max_accel_mm_s2": 50000
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.2": "0.20mm Standard @Creality Ender-5 Max 0.4mm nozzle"
+  },
+  "layer_speeds": {
+    "0.2": {
+      "sparse_infill_speed": "500",
+      "internal_solid_infill_speed": "500",
+      "gap_infill_speed": "100"
+    }
+  },
+  "pin_base_layer_height": "0.2",
+  "filament_presets": {
+    "PLA": "Generic PLA @Creality Ender-5Max-all",
+    "PLA-CF": "Creality Hyper PLA-CF @Ender-5Max-all",
+    "PETG": "Generic PETG @Creality Ender-5Max-all",
+    "ABS": "Generic ABS @Creality Ender-5Max-all",
+    "ASA": "Generic ASA @Creality Ender-5Max-all",
+    "TPU": "Generic TPU @Creality Ender-5Max-all",
+    "PA": "Generic PA @Creality Ender-5Max-all"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

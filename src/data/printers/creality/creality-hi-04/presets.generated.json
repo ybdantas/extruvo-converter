@@ -1,0 +1,95 @@
+{
+  "_origem": "gerado por modules/extruvo-converter/scripts/build-creality.mjs a partir dos perfis Creality do OrcaSlicer (AGPL-3.0)",
+  "profile_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "machine_gcode_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "machine": "Creality Hi 0.4 nozzle",
+  "machine_gcode": {
+    "machine_start_gcode": "M140 S0\nM104 S0 \nSTART_PRINT EXTRUDER_TEMP=[nozzle_temperature_initial_layer] BED_TEMP=[bed_temperature_initial_layer_single]\nT[initial_no_support_extruder]\nM104 S[nozzle_temperature_initial_layer]\nM204 S2000\nG1 Z3 F600\nM83\nG1 Y150 F12000\nG1 X0 F12000\nG1 Z0.2 F600\nG1 X0 Y150 F6000\nG1 E0.8 F300\nG1 X0 Y0 E9 F{filament_max_volumetric_speed[initial_extruder]/0.3*60}\nG1 X150 Y0 E9 F{filament_max_volumetric_speed[initial_extruder]/0.3*60}\nG92 E0\nG1 Z1 F600",
+    "machine_end_gcode": "G1 X0 Y180 F8000\nEND_PRINT",
+    "before_layer_change_gcode": ";BEFORE_LAYER_CHANGE\n;[layer_z]\nG92 E0\n",
+    "layer_change_gcode": ";AFTER_LAYER_CHANGE\n;[layer_z]",
+    "change_filament_gcode": "G2 Z{z_after_toolchange + 0.4} I0.86 J0.86 P1 F10000 ; spiral lift a little from second lift\nG1 X260 Y180 F30000\nG1 Z{z_after_toolchange} F600",
+    "machine_pause_gcode": "PAUSE",
+    "time_lapse_gcode": "{if !spiral_mode && print_sequence != \"by object\" && layer_num != 0}\n;don't support timelapse gcode in spiral_mode and by object sequence for I3 structure printer\n;time lapse begin\nM5001 G92 E0\nM5001 G17\nM5001 G2 Z{layer_z + 0.4} I0.86 J0.86 P1 F20000 ; spiral lift a little\nM5001 G1 X0 Y180 F24000 ; move to safe pos\nM5001 P15\nM5001 M400 P300\nM5001 G92 E0\n;time lapse end\n{endif}"
+  },
+  "process_presets": {
+    "0.08": {
+      "name": "0.08mm HueForge @Creality Hi 0.4 nozzle",
+      "speeds": {
+        "sparse_infill_speed": "250",
+        "internal_solid_infill_speed": "200",
+        "gap_infill_speed": "250"
+      }
+    },
+    "0.12": {
+      "name": "0.12mm Fine @Creality Hi",
+      "speeds": {
+        "sparse_infill_speed": "400",
+        "internal_solid_infill_speed": "350",
+        "gap_infill_speed": "300"
+      }
+    },
+    "0.16": {
+      "name": "0.16mm Optimal @Creality Hi",
+      "speeds": {
+        "sparse_infill_speed": "250",
+        "internal_solid_infill_speed": "270",
+        "gap_infill_speed": "250"
+      }
+    },
+    "0.2": {
+      "name": "0.20mm Standard @Creality Hi",
+      "speeds": {
+        "sparse_infill_speed": "270",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "250"
+      }
+    },
+    "0.24": {
+      "name": "0.24mm Draft @Creality Hi",
+      "speeds": {
+        "sparse_infill_speed": "250",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "250"
+      }
+    },
+    "0.28": {
+      "name": "0.28mm SuperDraft @Creality Hi 0.4 nozzle",
+      "speeds": {
+        "sparse_infill_speed": "200",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "250"
+      }
+    }
+  },
+  "filament_presets": {
+    "PLA": {
+      "name": "Generic PLA @Creality Hi-all",
+      "compativel": true
+    },
+    "PLA-CF": {
+      "name": "Generic PLA-CF @Creality Hi-all",
+      "compativel": true
+    },
+    "PETG": {
+      "name": "Generic PETG @Hi-all",
+      "compativel": true
+    },
+    "PETG-CF": {
+      "name": "Generic PETG-CF @Creality Hi-all",
+      "compativel": true
+    },
+    "ABS": {
+      "name": "Generic ABS @Hi-all",
+      "compativel": true
+    },
+    "ASA": {
+      "name": "Generic ASA @Creality Hi-all",
+      "compativel": true
+    },
+    "TPU": {
+      "name": "Generic TPU @Creality Hi-all",
+      "compativel": true
+    }
+  }
+}

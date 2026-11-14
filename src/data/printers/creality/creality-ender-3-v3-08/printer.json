@@ -1,0 +1,66 @@
+{
+  "id": "creality-ender-3-v3-08",
+  "label": "Creality Ender-3 V3 0.80 mm",
+  "printer_model": "Creality Ender-3 V3",
+  "printer_settings_id": "Creality Ender-3 V3 0.8 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality Ender-3 V3 0.8 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 1,
+  "slot_system": "monofilamento (1 bico, sem CFS)",
+  "multi_material": false,
+  "nozzle_diameter": 0.8,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 270,
+    "bed_max_c": 100,
+    "max_speed_mm_s": 600,
+    "max_accel_mm_s2": 20000,
+    "chamber_max_c": 60
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.24": "0.24mm Standard @Creality Ender-3 V3 0.8 nozzle",
+    "0.32": "0.32mm Standard @Creality Ender-3 V3 0.8 nozzle",
+    "0.4": "0.40mm Standard @Creality Ender-3 V3 0.8 nozzle",
+    "0.48": "0.48mm Standard @Creality Ender-3 V3 0.8 nozzle",
+    "0.56": "0.56mm Standard @Creality Ender-3 V3 0.8 nozzle"
+  },
+  "layer_speeds": {
+    "0.24": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.32": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.4": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.48": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.56": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    }
+  },
+  "pin_base_layer_height": "0.24",
+  "filament_presets": {
+    "PLA": "Generic PLA @Ender-3 V3-all",
+    "PLA-CF": "Hyper PLA-CF @Ender-3 V3-all",
+    "PETG": "Generic PETG @Ender-3 V3-all",
+    "ABS": "CR-ABS @Ender-3 V3-all",
+    "TPU": "Generic TPU @Ender-3 V3-all"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

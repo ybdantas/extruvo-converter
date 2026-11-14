@@ -1,0 +1,66 @@
+{
+  "_origem": "gerado por modules/extruvo-converter/scripts/build-creality.mjs a partir dos perfis Creality do OrcaSlicer (AGPL-3.0)",
+  "profile_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "machine_gcode_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "machine": "Creality CR-10 SE 0.2 nozzle",
+  "machine_gcode": {
+    "machine_start_gcode": "M220 S100 ;Reset feed rate \nM221 S100 ;Reset flow rate \n\nM140 S[bed_temperature_initial_layer_single] ;Set final bed temp\nG28 ;Home \nG92 E0 ;Reset extruder \nG1 Z2.0 F3000 ;Move Z Axis up \nG1 X10.1 Y20 Z0.28 F5000.0 ;Move to start position \nM190 S[bed_temperature_initial_layer_single] ;Wait for bed temp to stabilize\nM109 S[nozzle_temperature_initial_layer] ;Wait for nozzle temp to stabilize\nG1 X10.1 Y145.0 Z0.28 F1500.0 E15 ;Draw the first line \nG1 X10.4 Y145.0 Z0.28 F5000.0 ;Move to side a little \nG1 X10.4 Y20 Z0.28 F1500.0 E30 ;Draw the second line \nG92 E0 ;Reset extruder \nG1 E-1.0000 F1800 ;Retract a bit \nG1 Z2.0 F3000 ;Move Z Axis up \nG1 E0.0000 F1800",
+    "machine_end_gcode": "G91 ;Relative positioning \nG1 E-2 F2700 ;Retract a bit \nG1 E-2 Z0.2 F2400 ;Retract and raise Z \nG1 X5 Y5 F3000 ;Wipe out \nG1 Z3 ;Raise Z more \nG90 ;Absolute positioning \nG1 X2 Y218 F3000 ;Present print \nM106 S0 ;Turn-off fan \nM104 S0 ;Turn-off hotend \nM140 S0 ;Turn-off bed \nM84 X Y E ;Disable all steppers but Z",
+    "before_layer_change_gcode": ";BEFORE_LAYER_CHANGE\n;[layer_z]\nG92 E0\n",
+    "layer_change_gcode": "",
+    "change_filament_gcode": "M600",
+    "machine_pause_gcode": "M25"
+  },
+  "process_presets": {
+    "0.12": {
+      "name": "0.12mm Fine @Creality CR10SE 0.2",
+      "speeds": {
+        "sparse_infill_speed": "300",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "200"
+      }
+    },
+    "0.16": {
+      "name": "0.16mm Optimal @Creality CR10SE 0.2",
+      "speeds": {
+        "sparse_infill_speed": "300",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "200"
+      }
+    },
+    "0.2": {
+      "name": "0.20mm Standard @Creality CR10SE 0.2",
+      "speeds": {
+        "sparse_infill_speed": "300",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "200"
+      }
+    },
+    "0.24": {
+      "name": "0.24mm Draft @Creality CR10SE 0.2",
+      "speeds": {
+        "sparse_infill_speed": "300",
+        "internal_solid_infill_speed": "250",
+        "gap_infill_speed": "200"
+      }
+    }
+  },
+  "filament_presets": {
+    "PLA": {
+      "name": "Generic Speed PLA @Creality HF",
+      "compativel": true
+    },
+    "PETG": {
+      "name": "Generic PETG @Creality",
+      "compativel": true
+    },
+    "ABS": {
+      "name": "Generic ABS @CR-10 SE-all",
+      "compativel": true
+    },
+    "TPU": {
+      "name": "Generic TPU @CR-10 SE-all",
+      "compativel": true
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "_origem": "gerado por modules/extruvo-converter/scripts/build-creality.mjs a partir dos perfis Creality do OrcaSlicer (AGPL-3.0)",
+  "profile_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "machine_gcode_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "machine": "Creality Ender-3 V3 Plus 0.8 nozzle",
+  "machine_gcode": {
+    "machine_start_gcode": "M140 S0\nM104 S0\nSTART_PRINT EXTRUDER_TEMP=[nozzle_temperature_initial_layer] BED_TEMP=[bed_temperature_initial_layer]",
+    "machine_end_gcode": "END_PRINT",
+    "before_layer_change_gcode": ";BEFORE_LAYER_CHANGE\n;[layer_z]\nG92 E0\n",
+    "layer_change_gcode": ";AFTER_LAYER_CHANGE\n;[layer_z]",
+    "change_filament_gcode": "PAUSE",
+    "machine_pause_gcode": "PAUSE\n"
+  },
+  "process_presets": {
+    "0.4": {
+      "name": "0.40mm Standard @Creality Ender-3 V3 Plus 0.8 nozzle",
+      "speeds": {
+        "sparse_infill_speed": "120",
+        "internal_solid_infill_speed": "150",
+        "gap_infill_speed": "50"
+      }
+    }
+  },
+  "filament_presets": {
+    "PLA": {
+      "name": "Generic PLA @Ender-3 V3 Plus-all",
+      "compativel": true
+    },
+    "PETG": {
+      "name": "Generic PETG @Ender-3 V3 Plus-all",
+      "compativel": true
+    },
+    "ABS": {
+      "name": "Generic ABS @Ender-3 V3 Plus-all",
+      "compativel": true
+    },
+    "ASA": {
+      "name": "Generic ASA @Ender-3 V3 Plus-all",
+      "compativel": true
+    },
+    "TPU": {
+      "name": "Generic TPU @Ender-3 V3 Plus-all",
+      "compativel": true
+    },
+    "PA-CF": {
+      "name": "Generic PA-CF @Ender-3 V3 Plus-all",
+      "compativel": true
+    }
+  }
+}

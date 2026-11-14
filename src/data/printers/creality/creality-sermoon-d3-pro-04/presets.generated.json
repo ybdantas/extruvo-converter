@@ -1,0 +1,42 @@
+{
+  "_origem": "gerado por modules/extruvo-converter/scripts/build-creality.mjs a partir dos perfis Creality do OrcaSlicer (AGPL-3.0)",
+  "profile_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "machine_gcode_source": "OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality*) [AGPL-3.0]",
+  "machine": "Creality Sermoon D3 Pro 0.4 nozzle",
+  "machine_gcode": {
+    "machine_start_gcode": "M900 T0 K0.03\nM900 T1 K0.05\nM593 X F35\nM593 Y F37.5\nM205 B20000.00 S0.00 T0.00 J0.05\nG21\nG90\nM83\nM107\nM220 S100 ;Reset Feedrate\nM221 S100 ;Reset Flowrate\nT[initial_no_support_extruder]\nM109 S[nozzle_temperature_initial_layer] T[initial_no_support_extruder]\nG28 ;Home\n\nG92 E0 ;Reset Extruder\nG1 Z2.0 F3000 ;Move Z Axis up\nG1 X10.1 Y20 Z0.28 F5000.0 ;Move to start position\nG1 X10.1 Y145.0 Z0.28 F1500.0 E15 ;Draw the first line\nG1 X10.4 Y145.0 Z0.28 F5000.0 ;Move to side a little\nG1 X10.4 Y20 Z0.28 F1500.0 E30 ;Draw the second line\nG92 E0  ;Reset Extruder\nG1 E-1.0000 F1800 ;Retract a bit\nG1 Z2.0 F3000 ;Move Z Axis up\nG1 E0.0000 F1800",
+    "machine_end_gcode": "G91 ;Relative positionning\nG1 E-2 F2700 ;Retract a bit\nG1 E-2 Z0.2 F2400 ;Retract and raise Z\nG1 X5 Y5 F3000 ;Wipe out\n;G1 Z10 ;Raise Z more\nG90 ;Absolute positionning\n\nG1 X0 Y0 ;Present print\nM106 S0 ;Turn-off fan\nM104 S0 ;Turn-off hotend\nM140 S0 ;Turn-off bed\n\nM84 X Y E ;Disable all steppers but Z",
+    "before_layer_change_gcode": ";BEFORE_LAYER_CHANGE\n;[layer_z]\nG92 E0\n",
+    "layer_change_gcode": ";AFTER_LAYER_CHANGE\n;[layer_z]",
+    "change_filament_gcode": ";switch//////////////////////////////////////////\n; Change Tool[previous_extruder] -> Tool[next_extruder] (layer [layer_num])\nG1 F800 E-[new_retract_length]\nG1 F21000\n;P0 S1 L2 D0\nT[next_extruder]\nM109 S[new_filament_temp]\n;T0 S1 L0 D0\n;switch//////////////////////////////////////////\n",
+    "machine_pause_gcode": "M25"
+  },
+  "process_presets": {
+    "0.2": {
+      "name": "0.20mm Standard @Creality Sermoon D3 Pro 0.4 nozzle",
+      "speeds": {
+        "sparse_infill_speed": "200",
+        "internal_solid_infill_speed": "200",
+        "gap_infill_speed": "200"
+      }
+    }
+  },
+  "filament_presets": {
+    "PLA": {
+      "name": "Hyper PLA @Sermoon D3 Pro-all",
+      "compativel": true
+    },
+    "PLA-CF": {
+      "name": "Hyper PLA-CF @Sermoon D3 Pro-all",
+      "compativel": true
+    },
+    "PETG": {
+      "name": "CR-PETG @Sermoon D3 Pro-all",
+      "compativel": true
+    },
+    "ABS": {
+      "name": "CR-ABS @Sermoon D3 Pro-all",
+      "compativel": true
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "creator5pro",
+  "label": "Flashforge Creator 5 Pro",
+  "printer_model": "Flashforge Creator 5 Pro",
+  "printer_settings_id": "Flashforge Creator 5 Pro 0.4 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-templates.mjs resolvendo a herança dos perfis de sistema do Flash Studio Desktop (vendor Flashforge Windows, perfil 'Flashforge Creator 5 Pro 0.4 nozzle'). Compartilha os processos @FF C5 com o Creator 5; filamentos usam a variante @FF C5P. Câmara aquecida 65 °C (support_chamber_temp_control=1 no perfil Pro).",
+  "trust": "template derivado automaticamente dos perfis oficiais Flash Studio; não validado em fatiamento real nem em impressão física. Multi-toolhead (4 bicos independentes) é exposto no template mas não é modelado em detalhe pelo motor de conversão — os projetos Bambu/MakerWorld multi-filamento são mapeados como filamentos lógicos e cabe ao Flash Studio atribuir o par bico/filamento.",
+  "filament_slots": 4,
+  "slot_system": "4 bicos independentes (nativo, sem IFS/CFS) + câmara aquecida",
+  "multi_material": true,
+  "nozzle_diameter": 0.4,
+  "nozzle_count": 4,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 320,
+    "bed_max_c": 120,
+    "chamber_max_c": 65,
+    "max_speed_mm_s": 600,
+    "max_accel_mm_s2": 30000,
+    "_fonte": "Limites de temperatura: especificação publicada pela Flashforge (bico 320 °C, mesa 120 °C, câmara 65 °C). Velocidade e aceleração: perfis oficiais do Flash Studio para Creator 5 Pro."
+  },
+  "bed_type": "Textured PEI Plate",
+  "process_presets": {
+    "0.08": "0.08mm Standard @FF C5",
+    "0.10": "0.10mm Standard @FF C5",
+    "0.12": "0.12mm Standard @FF C5",
+    "0.20": "0.20mm Standard @FF C5",
+    "0.24": "0.24mm Standard @FF C5"
+  },
+  "pin_base_layer_height": "0.20",
+  "filament_presets": {
+    "PLA": "Flashforge PLA Basic @FF C5P",
+    "PLA-CF": "Flashforge PLA-CF @FF C5P",
+    "PETG": "Flashforge PETG Pro @FF C5P",
+    "PETG-CF": "Flashforge PETG-CF @FF C5P",
+    "ABS": "Flashforge ABS Basic @FF C5P",
+    "ASA": "Flashforge ASA Basic @FF C5P",
+    "TPU": "Flashforge TPU-95A @FF C5P"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

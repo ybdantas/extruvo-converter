@@ -1,0 +1,56 @@
+{
+  "id": "creality-k1c-08",
+  "label": "Creality K1C 0.80 mm",
+  "printer_model": "Creality K1C",
+  "printer_settings_id": "Creality K1C 0.8 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality K1C 0.8 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 1,
+  "slot_system": "monofilamento (1 bico, sem CFS)",
+  "multi_material": false,
+  "nozzle_diameter": 0.8,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 300,
+    "bed_max_c": 110,
+    "max_speed_mm_s": 600,
+    "max_accel_mm_s2": 20000
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.32": "0.32mm Optimal @Creality K1C",
+    "0.4": "0.40mm Standard @Creality K1C",
+    "0.48": "0.48mm Draft @Creality K1C"
+  },
+  "layer_speeds": {
+    "0.32": {
+      "sparse_infill_speed": "150",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.4": {
+      "sparse_infill_speed": "150",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.48": {
+      "sparse_infill_speed": "150",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    }
+  },
+  "pin_base_layer_height": "0.32",
+  "filament_presets": {
+    "PLA": "Generic PLA @Creality K1-all",
+    "PLA-CF": "Generic PLA-CF @Creality K1-all",
+    "PETG": "Generic PETG @Creality K1-all",
+    "ABS": "Generic ABS @Creality K1-all",
+    "ASA": "Generic ASA @Creality K1-all",
+    "TPU": "Generic TPU @Creality K1-all",
+    "PC": "Generic PC @Creality K1-all",
+    "PA-CF": "Generic PA-CF @Creality K1-all"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

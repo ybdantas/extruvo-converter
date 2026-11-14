@@ -1,0 +1,54 @@
+{
+  "id": "creality-k1-se-cfs-04",
+  "label": "Creality K1 SE (CFS) 0.40 mm",
+  "printer_model": "Creality K1 SE_CFS-C",
+  "printer_settings_id": "Creality K1 SE_CFS-C 0.4 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality K1 SE_CFS-C 0.4 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 4,
+  "slot_system": "CFS (Creality Filament System, até 4 carretéis compartilhando 1 bico)",
+  "multi_material": true,
+  "nozzle_diameter": 0.4,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 280,
+    "bed_max_c": 90,
+    "max_speed_mm_s": 800,
+    "max_accel_mm_s2": 20000
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.16": "0.16mm Optimal @Creality K1 SE_CFS-C 0.4 nozzle",
+    "0.2": "0.20mm Standard @Creality K1 SE_CFS-C 0.4 nozzle",
+    "0.24": "0.24mm Draft @Creality K1 SE_CFS-C 0.4 nozzle"
+  },
+  "layer_speeds": {
+    "0.16": {
+      "sparse_infill_speed": "300",
+      "internal_solid_infill_speed": "250",
+      "gap_infill_speed": "250"
+    },
+    "0.2": {
+      "sparse_infill_speed": "270",
+      "internal_solid_infill_speed": "250",
+      "gap_infill_speed": "250"
+    },
+    "0.24": {
+      "sparse_infill_speed": "250",
+      "internal_solid_infill_speed": "250",
+      "gap_infill_speed": "250"
+    }
+  },
+  "pin_base_layer_height": "0.2",
+  "filament_presets": {
+    "PLA": "Generic PLA @K1 SE_CFS-C-all",
+    "PLA-CF": "Generic PLA-CF @K1 SE_CFS-C-all",
+    "PETG": "Generic PETG @K1 SE_CFS-C-all",
+    "ABS": "Generic ABS @K1 SE_CFS-C-all",
+    "ASA": "Generic ASA @K1 SE_CFS-C-all",
+    "TPU": "Generic TPU @K1 SE_CFS-C-all"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

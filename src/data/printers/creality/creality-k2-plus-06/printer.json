@@ -1,0 +1,69 @@
+{
+  "id": "creality-k2-plus-06",
+  "label": "Creality K2 Plus (CFS) 0.60 mm",
+  "printer_model": "Creality K2 Plus",
+  "printer_settings_id": "Creality K2 Plus 0.6 nozzle",
+  "template_origin": "Gerado por modules/extruvo-converter/scripts/build-creality.mjs resolvendo a herança dos perfis oficiais do OrcaSlicer v2.5.0 (SoftFever/OrcaSlicer @40ecc66f78ed72dc368e0c1ebe40d77f00cc8a19, resources/profiles/Creality/machine/Creality K2 Plus 0.6 nozzle.json).",
+  "trust": "template derivado automaticamente dos perfis oficiais OrcaSlicer (commit pinado); não validado em fatiamento real nem em impressão física. Multi-material em CFS é tratado como filamentos lógicos — a atribuição física slot->filamento cabe ao Creality Print/OrcaSlicer.",
+  "filament_slots": 4,
+  "slot_system": "CFS (Creality Filament System, até 4 carretéis compartilhando 1 bico)",
+  "multi_material": true,
+  "nozzle_diameter": 0.6,
+  "nozzle_count": 1,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 320,
+    "bed_max_c": 110,
+    "max_speed_mm_s": 800,
+    "max_accel_mm_s2": 30000,
+    "chamber_max_c": 60
+  },
+  "bed_type": "High Temp Plate",
+  "process_presets": {
+    "0.18": "0.18mm Detail @Creality K2 Plus 0.6 nozzle",
+    "0.24": "0.24mm Optimal @Creality K2 Plus 0.6 nozzle",
+    "0.3": "0.30mm Standard @Creality K2 Plus 0.6 nozzle",
+    "0.36": "0.36mm Draft @Creality K2 Plus 0.6 nozzle",
+    "0.42": "0.42mm SuperDraft @Creality K2 Plus 0.6 nozzle"
+  },
+  "layer_speeds": {
+    "0.18": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.24": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.3": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.36": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    },
+    "0.42": {
+      "sparse_infill_speed": "120",
+      "internal_solid_infill_speed": "150",
+      "gap_infill_speed": "50"
+    }
+  },
+  "pin_base_layer_height": "0.18",
+  "filament_presets": {
+    "PLA": "Generic PLA @K2 Plus-all",
+    "PLA-CF": "Generic PLA-CF @Creality K2-all",
+    "PETG": "Generic PETG @K2 Plus-all",
+    "ABS": "Generic ABS @K2 Plus-all",
+    "ASA": "Generic ASA @Creality K2-all",
+    "TPU": "Generic TPU @Creality K2-all",
+    "PC": "Hyper PC @K2 Plus-all",
+    "PA-CF": "Generic PA-CF @K2 Plus-all"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}

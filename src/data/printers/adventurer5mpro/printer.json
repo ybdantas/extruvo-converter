@@ -1,0 +1,55 @@
+{
+  "id": "adventurer5mpro",
+  "label": "Flashforge Adventurer 5M Pro",
+  "printer_model": "Flashforge Adventurer 5M Pro",
+  "printer_settings_id": "Flashforge Adventurer 5M Pro 0.4 Nozzle",
+  "template_origin": "Gerado por tools/build_templates.py resolvendo a herança dos perfis de sistema do Flash Studio 1.7.9 (AppImage Linux oficial, vendor Flashforge 02.01.01.00). Máquina, processo e filamentos conferidos contra esses perfis (presets.generated.json).",
+  "trust": "validado no Flash Studio 1.7.9 CLI e no OrcaSlicer 2.5.0 CLI (fatiamento); não validado na GUI nem em impressão real",
+  "filament_slots": 1,
+  "slot_system": "1 carretel (sem IFS)",
+  "multi_material": false,
+  "nozzle_diameter": 0.4,
+  "template": "template.json",
+  "limits": {
+    "nozzle_max_c": 280,
+    "bed_max_c": 110,
+    "max_speed_mm_s": 600,
+    "max_accel_mm_s2": 20000,
+    "_fonte": "Limites de temperatura: especificação publicada pela Flashforge (bico 280 °C, mesa 110 °C)."
+  },
+  "bed_type": "Textured PEI Plate",
+  "process_presets": {
+    "0.12": "0.12mm Fine @Flashforge AD5M Pro 0.4 Nozzle",
+    "0.2": "0.20mm Standard @Flashforge AD5M Pro 0.4 Nozzle",
+    "0.24": "0.24mm Draft @Flashforge AD5M Pro 0.4 Nozzle"
+  },
+  "layer_speeds": {
+    "0.12": {
+      "sparse_infill_speed": "270",
+      "internal_solid_infill_speed": "250",
+      "gap_infill_speed": "200"
+    },
+    "0.2": {
+      "sparse_infill_speed": "270",
+      "internal_solid_infill_speed": "250",
+      "gap_infill_speed": "200"
+    },
+    "0.24": {
+      "sparse_infill_speed": "270",
+      "internal_solid_infill_speed": "250",
+      "gap_infill_speed": "200"
+    }
+  },
+  "pin_base_layer_height": "0.2",
+  "filament_presets": {
+    "PLA": "Flashforge PLA Basic",
+    "PLA-CF": "Flashforge PLA-CF",
+    "PETG": "Flashforge PETG Pro",
+    "PETG-CF": "Flashforge PETG-CF",
+    "ABS": "Flashforge ABS Basic",
+    "ASA": "Flashforge ASA Basic",
+    "TPU": "Flashforge TPU 95A"
+  },
+  "filament_fallback_type": "PLA",
+  "enabled": true
+}
