@@ -146,6 +146,12 @@ async function loadPrinter(rawId: string): Promise<Printer> {
   }
 }
 
+function inferBrand(id: string, label: string): string {
+  if (id.startsWith('creality-')) return 'Creality'
+  if (/^Flashforge\b/i.test(label)) return 'Flashforge'
+  return 'Flashforge'
+}
+
 async function buildPrinterList(): Promise<PrinterInfo[]> {
   const idx = await loadIndex()
   return idx.printers
@@ -157,6 +163,7 @@ async function buildPrinterList(): Promise<PrinterInfo[]> {
       bed_type: p.bed_type,
       nozzle_count: Number(p.nozzle_count ?? 1),
       slot_system: p.slot_system,
+      brand: inferBrand(String(p.id), String(p.label)),
     }))
 }
 

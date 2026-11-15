@@ -15,6 +15,10 @@ export type PrinterInfo = {
   bed_type?: string
   nozzle_count: number
   slot_system?: string
+  // Marca do fabricante (hoje: "Flashforge" ou "Creality"). O UI agrupa a
+  // lista por marca; quando o worker não envia (versão antiga), o cliente
+  // infere pelo prefixo do id (`creality-*` → Creality, demais → Flashforge).
+  brand?: string
 }
 
 export type ListPrintersRequest = {
