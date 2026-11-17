@@ -38,5 +38,6 @@
     "TPU": "Flashforge TPU-95A @FF C5P"
   },
   "filament_fallback_type": "PLA",
+  "support_tree_organic_accepted": true,
   "enabled": true
 }

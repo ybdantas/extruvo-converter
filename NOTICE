@@ -240,6 +240,75 @@ Creator 5 / 5 Pro single_color = 1 (= nfil, bloqueia SIGSEGV),
 multicolor_4 = 4 (= nfil = toolheads); Ender-3 0.2 / AD5X single = 1,
 multi = 1 (= toolheads, satisfaz o Orca). Nenhum valor foi inventado.
 
+Correção 2026-11-15 — refs pendentes de .rels no 3MF de entrada
+---------------------------------------------------------------
+
+Versão do módulo: `0.3.0` → `0.3.1`. `engine.version`: `0.2.3` → `0.2.4`.
+
+Sintoma: 3MFs baixados do MakerWorld (ex.: `3dbenchy.3mf`,
+`A1_Poop_Bin.3mf`) traziam `Metadata/_rels/model_settings.config.rels`
+apontando para `/Metadata/plate_N.gcode` sem o G-code real dentro do zip
+(cache de fatiamento ausente). A rotina `cleanRels` só removia refs para
+arquivos que o conversor eliminava (`CACHE_RE`), então as refs já
+pendentes seguiam para a saída e a validação `rels_sem_referencia_quebrada`
+abortava com `validation_failed`.
+
+Correção local (sem invenção de dados): nova função
+`dropDanglingRels(xmlText, existing)` em `model3mf.ts` + pós-processamento
+em `engine-core.ts` que, após gravar todos os membros em `zout`, varre
+cada `.rels` e remove `<Relationship>` cujo `Target=".."` não exista no
+zip de saída (normalizando `/foo` → `foo`). A correção também cobre o
+scrub de caches removidos pelo motor e deixa o `cleanRels` existente como
+caminho rápido para o passo inline. Cada ref descartada é registrada em
+`rep.removed_files` com prefixo `<rel>` e uma nota resumida é adicionada
+em `rep.notes` ("Removidas N referência(s) pendente(s)…").
+
+Testes unitários (`tests/makerworld-converter.test.ts`):
+- `dangling .rels to missing plate_1.gcode is tolerated and scrubbed (single plate)`
+- `dangling .rels to multiple missing plate_N.gcode is tolerated (3 plates)`
+- `dangling .rels scrub is a no-op when the input is clean`
+
+Novas fixtures sintéticas em `tests/fixtures/flashforge/makeFixtures.ts`:
+`dangling_gcode_rels_single` e `dangling_gcode_rels_multi` (gravam só a
+`.rels` apontando para `plate_N.gcode` ausente, reproduzindo o estado dos
+3MFs do MakerWorld).
+
+Correção 2026-11-16 — tree_organic preservado em Creator 5/5 Pro
+----------------------------------------------------------------
+
+Versão do módulo: `0.3.1` → `0.3.2`. `engine.version`: `0.2.4` → `0.2.5`.
+
+O canal `tree_organic` do perfil Bambu era rebaixado para `default` em todos
+os alvos (regra original para proteger AD5X/5M/5MPro, onde o Flash Studio
+1.7.9 não implementa a variante orgânica). As Flashforge Creator 5 / 5 Pro,
+porém, usam o mesmo Flash Studio Desktop com a build Windows mais recente
+que já aceita `tree_organic` — a flag `support_tree_organic_accepted` no
+`printer.json` desses dois alvos identifica isso. Agora, se o destino tem
+`support_tree_organic_accepted === true`, o valor é preservado e uma nota
+é adicionada ao `rep.notes`; nos demais alvos a redução para `default`
+continua.
+
+Complemento: aviso de "Combinação de risco em suporte" quando o 3MF de
+entrada declara `support_type` começando por `tree`, `enable_support = 1` e
+`detect_thin_wall = 0`. O 3MF de saída preserva os valores do autor; apenas
+um alerta é acumulado em `rep.notes` para que o front-end possa mostrá-lo
+sem alterar configuração.
+
+Correção 2026-11-16 — aviso de combo de parede fina
+---------------------------------------------------
+
+Versão do módulo: `0.3.2` → `0.3.3`. `engine.version`: `0.2.5` → `0.2.6`.
+
+Quando o projeto declara `wall_generator = classic`, `wall_loops` pequeno
+(≤ 2) e `detect_thin_wall = 0`, regiões abaixo de `wall_loops *
+outer_wall_line_width` (ex.: dedos/braços finos) podem sair como
+`gap_infill` ("linhas soltas") no Flash Studio e no Orca 2.5. Nenhum ajuste
+do autor é alterado — o conversor somente acumula a mensagem em
+`rep.notes` descrevendo a geometria afetada e a mitigação aplicável no
+fatiador (`wall_generator=arachne` + `detect_thin_wall=1` +
+`min_bead_width=70%`). Front-end exibe o aviso; o 3MF de saída continua
+igual ao do autor.
+
 Comportamento conhecido NÃO corrigido (upstream Creality)
 ---------------------------------------------------------
 

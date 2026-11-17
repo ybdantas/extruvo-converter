@@ -17,7 +17,7 @@ import { validateOutput, type ValidationContext } from './validate'
 
 export { Printer } from './printers-core'
 
-export const ENGINE_VERSION = '0.2.3'
+export const ENGINE_VERSION = '0.2.6'
 export const BED_KEY_BY_TYPE: Record<string, string> = {
   'Cool Plate': 'cool_plate_temp', 'Engineering Plate': 'eng_plate_temp',
   'High Temp Plate': 'hot_plate_temp', 'Textured PEI Plate': 'textured_plate_temp',
@@ -216,6 +216,62 @@ function clampRetractionDistancesWhenCut(R: ProjectSettings, rep: ConversionRepo
 // serão fatiados pelo Orca (Creality). Flashforge usa Flash Studio, não
 // Orca; mantemos paridade com o Python v0.2.3 ali. Divergência explícita
 // documentada no NOTICE.
+// Aviso (não-mutador) quando o 3MF de saída combina a receita clássica de
+// "suporte colou no modelo e galho oco colapsou":
+//   - support_type começa com `tree` (tree(auto)/tree_organic/tree)
+//   - support_top_z_distance ≤ layer_height (interface solda no modelo)
+//   - tree_support_wall_count == 0 (galho oco em zigue-zague)
+//   - detect_thin_wall == 0 (paredes finas do modelo podem virar gap-fill)
+// Todas as três condições precisam estar simultaneamente presentes (foi
+// essa exatamente a combinação do caso Spider-Man Noir Creator 5 Pro,
+// 2026-11-16). Se sim e a malha não trouxer paint_supports para bloquear
+// áreas delicadas, soma-se essa quarta observação ao texto. A função NÃO
+// altera as configurações do autor — só emite warning + pending.
+function warnRiskySupportCombo(R: ProjectSettings, rep: ConversionReport, hasPaintSupports: boolean): void {
+  if (String(first(R.enable_support ?? '0')) !== '1') return
+  const supportType = String(first(R.support_type ?? '')).toLowerCase()
+  if (!supportType.startsWith('tree')) return
+  const topZ = num(first(R.support_top_z_distance ?? '0.2')) ?? 0.2
+  const lh = num(first(R.layer_height ?? '0.2')) ?? 0.2
+  const wallCount = num(first(R.tree_support_wall_count ?? '0')) ?? 0
+  const thinWall = String(first(R.detect_thin_wall ?? '0'))
+  const topZRisk = topZ <= lh + 1e-9
+  const wallRisk = wallCount <= 0
+  const thinRisk = thinWall === '0'
+  if (!(topZRisk && wallRisk && thinRisk)) return
+  const parts = [
+    `support_top_z_distance=${topZ} ≤ layer_height=${lh} (interface solda no modelo)`,
+    `tree_support_wall_count=${wallCount} (galho oco)`,
+    'detect_thin_wall=0 (paredes finas do modelo podem virar gap-fill)',
+  ]
+  if (!hasPaintSupports) parts.push('sem paint_supports na malha (suporte automático em áreas delicadas)')
+  const msg = `Combinação de risco em suporte em árvore: ${parts.join('; ')}. Nenhuma configuração do autor foi alterada; antes de imprimir, considere afrouxar top_z_distance (0.20), dar 1 parede ao galho (tree_support_wall_count=1) e pintar suporte nas áreas delicadas (dedos/pontas).`
+  rep.warnings.push(msg)
+  rep.pending.push(msg)
+}
+
+// Aviso (não-mutador) quando o preset do autor usa parede clássica com 2 ou
+// menos loops e sem detecção de parede fina. Flash Studio 1.7.21 e Orca 2.5
+// deixam `gap_infill` (linhas soltas) nas regiões onde 2× `outer_wall_line_width`
+// não cabe (ex.: braço fino ~0,8 mm no Spider-Man Noir). Com
+// `wall_generator=arachne` + `detect_thin_wall=1` + `min_bead_width≈70%` o
+// slicer usa paredes de largura variável e preenche a região (medido 2026-11-16:
+// `gap_infill` no braço cai de 3147,9 mm para 27,4 mm, -99,1 %). A função não
+// altera as configurações do autor — só emite warning + pending.
+function warnThinWallCombo(R: ProjectSettings, rep: ConversionReport): void {
+  const gen = String(first(R.wall_generator ?? '')).toLowerCase()
+  if (gen !== 'classic') return
+  const loops = num(first(R.wall_loops ?? '2')) ?? 2
+  if (loops > 2) return
+  const thin = String(first(R.detect_thin_wall ?? '0'))
+  if (thin !== '0') return
+  const owLw = num(first(R.outer_wall_line_width ?? '0.42')) ?? 0.42
+  if (owLw < 0.4) return
+  const msg = `Combinação de risco em parede fina: wall_generator=classic; wall_loops=${loops}; detect_thin_wall=0; outer_wall_line_width=${owLw} mm. Regiões abaixo de ${(loops * owLw).toFixed(2)} mm (ex.: braços/dedos finos) podem sair com "linhas soltas" (gap_infill). Nenhuma configuração do autor foi alterada; para fechar essas paredes no Flash Studio/Orca considere no fatiador wall_generator=arachne + detect_thin_wall=1 + min_bead_width=70%.`
+  rep.warnings.push(msg)
+  rep.pending.push(msg)
+}
+
 function markRetractionDistancesInMachineSlot(R: ProjectSettings, printer: Printer): void {
   if (!('retraction_distances_when_cut' in R)) return
   const model = String(printer.meta.printer_model ?? '')
@@ -583,8 +639,21 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
     }
     const rw = mp.valueRewrites[tk]
     if (rw && !Array.isArray(val) && String(val as string) in rw) {
-      rep.notes.push(`${tk}: '${val}' do Bambu -> '${rw[String(val as string)]}' no Orca.`)
-      val = rw[String(val as string)]
+      // support_style: tree_organic → default é a única reescrita hoje; é
+      // segura para AD5X / Adventurer 5M / 5M Pro (sem evidência de
+      // tree_organic no Flash Studio para esses alvos), mas Flashforge
+      // Creator 5 / 5 Pro aceitam a chave no Flash Studio 1.7.21 — a
+      // reescrita apagaria a intenção do autor sem benefício. Pular quando
+      // o destino declarar `support_tree_organic_accepted`.
+      const skip = tk === 'support_style'
+        && String(val as string) === 'tree_organic'
+        && printer.meta.support_tree_organic_accepted === true
+      if (!skip) {
+        rep.notes.push(`${tk}: '${val}' do Bambu -> '${rw[String(val as string)]}' no Orca.`)
+        val = rw[String(val as string)]
+      } else {
+        rep.notes.push(`${tk}: '${val}' preservado (${printer.label} aceita tree_organic no fatiador alvo).`)
+      }
     }
     R[tk] = val
     copied.add(tk)
@@ -858,6 +927,8 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
     }
     rep.notes.push('O modelo tem suportes pintados à mão e a geração de suporte estava desligada: foi ligada (enable_support) para que esses suportes existam no fatiamento.')
   }
+  warnRiskySupportCombo(R, rep, paintSup)
+  warnThinWallCombo(R, rep)
 
   // torre de purga por placa
   //
@@ -1029,6 +1100,36 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
       data = M.cleanRels(new TextDecoder().decode(data as Uint8Array), removed)
     }
     zout.file(name, typeof data === 'string' ? data : data)
+  }
+
+  // Scrub .rels entries que apontam para arquivos ausentes no zip de saída.
+  // Captura tanto os caches removidos pelo conversor quanto refs pendentes que
+  // já vinham quebradas da entrada (ex.: 3MF do MakerWorld com
+  // Metadata/_rels/model_settings.config.rels -> /Metadata/plate_N.gcode
+  // sem o G-code gravado). Sem esse scrub, a validação
+  // `rels_sem_referencia_quebrada` aborta a conversão.
+  const outNames = new Set(Object.keys(zout.files).filter(n => !zout.files[n].dir))
+  const danglingRels: Array<{ rels: string; target: string }> = []
+  for (const name of [...outNames]) {
+    if (!name.endsWith('.rels')) continue
+    const txt = await zout.file(name)!.async('string')
+    const { text, dropped } = M.dropDanglingRels(txt, outNames)
+    if (dropped.length) {
+      zout.file(name, text)
+      for (const t of dropped) danglingRels.push({ rels: name, target: t })
+    }
+  }
+  if (danglingRels.length) {
+    const targets = danglingRels.map(d => d.target)
+    const uniqueTargets = Array.from(new Set(targets))
+    rep.removed_files = Array.from(new Set([
+      ...rep.removed_files,
+      ...uniqueTargets.map(t => `<rel>${t}`),
+    ]))
+    const preview = uniqueTargets.slice(0, 3).join(', ')
+    rep.notes.push(
+      `Removidas ${danglingRels.length} referência(s) pendente(s) de .rels no 3MF de entrada (ex.: ${preview}${uniqueTargets.length > 3 ? '…' : ''}). O 3MF original listava caches de fatiamento que não estavam dentro do arquivo; o 3MF de saída foi limpo.`
+    )
   }
   if (unassigned) rep.warnings.push(`${unassigned} objeto(s) sem placa identificável: posição não ajustada, confira no fatiador.`)
   for (const pidS of Object.keys(customGcodeXyStats).sort()) {

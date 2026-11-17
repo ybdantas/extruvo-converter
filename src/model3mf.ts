@@ -579,6 +579,25 @@ export function cleanRels(xmlText: string, removed: string[]): string {
   })
 }
 
+// Remove <Relationship> entries whose Target is not present in `existing`
+// (resolve "/x" against the zip root). Returns the cleaned XML and the list of
+// Target values that were dropped. Used to keep the 3MF de saída válido quando
+// a entrada já trazia refs pendentes (ex.: MakerWorld exporta
+// Metadata/_rels/model_settings.config.rels apontando para plate_N.gcode sem o
+// cache de slice presente).
+export function dropDanglingRels(xmlText: string, existing: ReadonlySet<string>): { text: string; dropped: string[] } {
+  const dropped: string[] = []
+  const text = xmlText.replace(/\s*<Relationship\b[^>]*\/>/g, m => {
+    const tg = /Target="([^"]+)"/.exec(m)
+    if (!tg) return m
+    const norm = tg[1].replace(/^\//, '')
+    if (existing.has(norm)) return m
+    dropped.push(tg[1])
+    return ''
+  })
+  return { text, dropped }
+}
+
 // --------- geometria (bbox) ---------
 type Local = ['mesh', number[]] | ['comp', Array<[string, string, Matrix12]>]
 

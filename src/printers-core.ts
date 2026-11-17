@@ -33,6 +33,13 @@ export type PrinterMeta = {
   filament_presets: Record<string, string>
   filament_fallback_type?: string
   enabled?: boolean
+  // true quando o fatiador alvo aceita `support_style = tree_organic` sem
+  // SIGSEGV/erro. Para esses destinos o motor PRESERVA o valor em vez de
+  // reescrever para `default`. Flashforge Creator 5 / 5 Pro: comprovado em
+  // Flash Studio 1.7.21 (box 2026-11-16, 3×3 slice, exit 0, saída idêntica
+  // à `default`). Em AD5X / Adventurer 5M / 5M Pro não há evidência atual;
+  // mantemos o rewrite conservador por padrão.
+  support_tree_organic_accepted?: boolean
 }
 
 export type ProjectSettings = Record<string, unknown>
