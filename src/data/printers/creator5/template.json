@@ -235,7 +235,7 @@
         "nil"
     ],
     "filament_diameter": [
-        "2.85"
+        "1.75"
     ],
     "filament_end_gcode": [
         "; filament end gcode \n"

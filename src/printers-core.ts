@@ -31,6 +31,18 @@ export type PrinterMeta = {
   layer_speeds?: Record<string, Record<string, string>>
   pin_base_layer_height?: string
   filament_presets: Record<string, string>
+  // Mapeamento opcional "Generic <TYPE> -> preset Generic @<impressora>".
+  // Quando o filamento de origem tem `filament_vendor = "Generic"`, o motor
+  // usa este preset no lugar do vendor específico (fidelidade à intenção do
+  // autor; igual à receita observada no ForgeBridge).
+  filament_presets_generic?: Record<string, string>
+  // ID interno aplicado a `filament_ids` quando o Generic é usado.
+  filament_generic_id?: string
+  // Diâmetro físico do filamento aceito pela impressora (mm). Usado como
+  // guarda de tempo de execução: o motor força `filament_diameter` do 3MF
+  // de saída para este valor independente do template, evitando regressão
+  // (ex.: bug Creator 5 / 5 Pro 2.85 -> 1.75 em 2026-11-20).
+  filament_diameter_mm?: number
   filament_fallback_type?: string
   enabled?: boolean
   // true quando o fatiador alvo aceita `support_style = tree_organic` sem

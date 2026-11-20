@@ -18,6 +18,7 @@
     "_fonte": "Limites de temperatura: especificação publicada pela Flashforge (bico 280 °C, mesa 110 °C)."
   },
   "bed_type": "Textured PEI Plate",
+  "filament_diameter_mm": 1.75,
   "process_presets": {
     "0.16": "0.16mm Standard @FF AD5X",
     "0.2": "0.20mm Standard @FF AD5X",

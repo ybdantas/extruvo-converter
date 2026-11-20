@@ -17,7 +17,7 @@ import { validateOutput, type ValidationContext } from './validate'
 
 export { Printer } from './printers-core'
 
-export const ENGINE_VERSION = '0.2.6'
+export const ENGINE_VERSION = '0.2.7'
 export const BED_KEY_BY_TYPE: Record<string, string> = {
   'Cool Plate': 'cool_plate_temp', 'Engineering Plate': 'eng_plate_temp',
   'High Temp Plate': 'hot_plate_temp', 'Textured PEI Plate': 'textured_plate_temp',
@@ -544,19 +544,21 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
   }
   for (let i = 0; i < nfil; i++) (R.flush_volumes_matrix as unknown[])[i * nfil + i] = '0'
 
-  // 3) nomes de preset
+  // 3) nomes de preset — escolhe o preset de altura <= layer_height do autor
+  //    (tie-break: mais próximo). Se o autor pediu altura abaixo do menor
+  //    preset disponível, usa o menor. Reproduz o comportamento observado no
+  //    ForgeBridge (ex.: layer_height=0.13 -> preset "0.12mm" em @FF C5),
+  //    em vez de fixar o template em um `pin_base_layer_height`.
   const lh = num(first(S.layer_height ?? '0.2')) ?? 0.2
   const presets = printer.meta.process_presets
-  const pin = printer.meta.pin_base_layer_height
-  if (pin && pin in presets) R.print_settings_id = presets[pin]
-  else {
-    let near = Object.keys(presets)[0]
-    let bestDist = Math.abs(parseFloat(near) - lh)
-    for (const k of Object.keys(presets)) {
-      const d = Math.abs(parseFloat(k) - lh)
-      if (d < bestDist) { near = k; bestDist = d }
-    }
-    R.print_settings_id = presets[near]
+  const presetKeys = Object.keys(presets).sort((a, b) => parseFloat(a) - parseFloat(b))
+  let chosen = presetKeys[0]
+  for (const k of presetKeys) {
+    if (parseFloat(k) <= lh + 1e-9) chosen = k
+  }
+  R.print_settings_id = presets[chosen]
+  if (parseFloat(chosen) !== lh) {
+    rep.notes.push(`print_settings_id: preset ${presets[chosen]} escolhido para layer_height=${lh} mm do autor (o valor do autor fica como override).`)
   }
   if (!keepSpeeds) {
     const [sp, note] = speedsForLayer(printer, lh)
@@ -566,13 +568,38 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
   const typesRaw = Array.isArray(S.filament_type) ? (S.filament_type as unknown[]) : Array(nfil).fill('PLA')
   const types = filVector(typesRaw, nfil, si, fv).map(t => String(t))
   const fp = printer.meta.filament_presets
+  const fpGeneric = printer.meta.filament_presets_generic
+  const genericId = printer.meta.filament_generic_id
   const fallbackType = printer.meta.filament_fallback_type ?? 'PLA'
   const fallback = fp[fallbackType]
+  // Vendor por slot (do autor). Serve para decidir quando mapear para o
+  // preset Generic do destino em vez do preset de vendor Flashforge.
+  const vendorsRaw = Array.isArray(S.filament_vendor) ? (S.filament_vendor as unknown[]) : []
+  const vendorsSrc = vendorsRaw.length
+    ? filVector(vendorsRaw, nfil, si, fv).map(v => String(v ?? ''))
+    : Array(nfil).fill('')
   const names: string[] = []
-  for (const t of types) {
+  const vendors: string[] = []
+  const chosenIsGeneric: boolean[] = []
+  for (let i = 0; i < types.length; i++) {
+    const t = types[i]
     const tu = t.toUpperCase()
+    const vendor = vendorsSrc[i]
+    const isGeneric = fpGeneric && vendor.trim().toLowerCase() === 'generic' && tu in fpGeneric
+    if (isGeneric) {
+      names.push(fpGeneric![tu])
+      vendors.push('Generic')
+      chosenIsGeneric.push(true)
+      continue
+    }
     if (!(tu in fp)) rep.warnings.push(`Filamento '${tu}' sem preset ${printer.label}: usado '${fallback}' (confira temperatura e escolha o filamento certo no fatiador).`)
     names.push(fp[tu] ?? fallback)
+    // Se existe vendor de origem (não vazio) e não é Generic, mantém a
+    // string original (ex.: "Bambu", "Polymaker") só como rótulo informativo;
+    // valores de filamento vêm do template Flashforge. Sem autor -> usa o
+    // template.
+    vendors.push(vendor && vendor.trim().toLowerCase() !== 'generic' ? vendor : '')
+    chosenIsGeneric.push(false)
   }
   R.filament_settings_id = names
   R.filament_type = types
@@ -584,6 +611,39 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
       const slot = R[k]
       if (Array.isArray(slot) && slot.length === nfil) slot[i] = v
     }
+  }
+  // Se algum slot escolheu o preset Generic, grava vendor/id coerentes.
+  // Mantém slots não-Generic no vendor do template (Flashforge).
+  if (chosenIsGeneric.some(Boolean)) {
+    const rv = Array.isArray(R.filament_vendor) ? (R.filament_vendor as unknown[]).slice() : Array(nfil).fill('Flashforge')
+    while (rv.length < nfil) rv.push(rv.length ? rv[rv.length - 1] : 'Flashforge')
+    const rid = Array.isArray(R.filament_ids) ? (R.filament_ids as unknown[]).slice() : Array(nfil).fill('')
+    while (rid.length < nfil) rid.push(rid.length ? rid[rid.length - 1] : '')
+    for (let i = 0; i < nfil; i++) {
+      if (chosenIsGeneric[i]) {
+        rv[i] = 'Generic'
+        if (genericId) rid[i] = genericId
+      } else if (vendors[i]) {
+        rv[i] = vendors[i]
+      }
+    }
+    R.filament_vendor = rv
+    R.filament_ids = rid
+    rep.notes.push(`filament_vendor "Generic" do autor preservado em ${chosenIsGeneric.filter(Boolean).length} slot(s); preset ${chosenIsGeneric.map((g, i) => g ? names[i] : null).filter(Boolean).join(', ')} em vez do vendor Flashforge.`)
+  }
+  // Guarda de tempo de execução para o diâmetro físico. Independente do
+  // template ou da escolha do preset, as impressoras Flashforge do Extruvo
+  // são todas 1,75 mm. Força o valor sempre que o meta da impressora
+  // declarar `filament_diameter_mm`. Corrige regressão histórica (Creator
+  // 5 / 5 Pro gravavam 2,85 mm em 0.3.3). Documentado em NOTICE.
+  if (typeof printer.meta.filament_diameter_mm === 'number' && Number.isFinite(printer.meta.filament_diameter_mm)) {
+    const diam = String(printer.meta.filament_diameter_mm)
+    const before = R.filament_diameter
+    const target = Array(nfil).fill(diam)
+    const changed = !Array.isArray(before) || before.length !== nfil
+      || (before as unknown[]).some((v, i) => String(v) !== target[i])
+    R.filament_diameter = target
+    if (changed) rep.notes.push(`filament_diameter: forçado para ${diam} mm (fonte: ${printer.label}.filament_diameter_mm).`)
   }
 
   // 4) copia as configurações do autor
@@ -689,7 +749,13 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
   }
 
   // 5) different_settings_to_system
-  if (pin && !keepSpeeds) for (const k of SPEED_KEYS) if (k in R) copied.add(k)
+  // Marca as velocidades do preset do destino como "customizadas" em
+  // relação ao sistema sempre que o motor reescreve essas chaves via
+  // speedsForLayer (ou seja, quando !keepSpeeds). Isso impede o Flash
+  // Studio / Orca de reverter para os valores default do preset ao abrir
+  // o 3MF, já que o nome do preset escolhido pode não ser idêntico ao
+  // original do autor.
+  if (!keepSpeeds) for (const k of SPEED_KEYS) if (k in R) copied.add(k)
   const skipFlushDiff = copied.has('support_object_skip_flush')
     && String(first(R.support_object_skip_flush ?? '0')) !== String(first(T.support_object_skip_flush ?? '0'))
   R.different_settings_to_system = buildDiffLists(mp, copied, nfil, skipFlushDiff)

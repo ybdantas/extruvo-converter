@@ -67,6 +67,11 @@ export async function validateOutput(src: ArrayBuffer | Uint8Array, out: ArrayBu
   push(checks, 'preset_processo', processPresets.includes(R.print_settings_id as string),
     `print_settings_id=${R.print_settings_id}`)
   const fps = new Set(Object.values(printer.meta.filament_presets))
+  // Permite também os presets "Generic ..." quando o destino os declara.
+  // Preserva o filamento "Generic" do autor (ver notas 6.7 do bump 2026-11-20).
+  if (printer.meta.filament_presets_generic) {
+    for (const v of Object.values(printer.meta.filament_presets_generic)) fps.add(v)
+  }
   const psIds = Array.isArray(R.filament_settings_id) ? (R.filament_settings_id as string[]) : []
   push(checks, 'presets_filamento', psIds.every(f => fps.has(f)), `filament_settings_id=${JSON.stringify(R.filament_settings_id)}`)
   push(checks, 'mesa', R.curr_bed_type === printer.meta.bed_type, `curr_bed_type=${R.curr_bed_type}`)

@@ -309,6 +309,84 @@ fatiador (`wall_generator=arachne` + `detect_thin_wall=1` +
 `min_bead_width=70%`). Front-end exibe o aviso; o 3MF de saída continua
 igual ao do autor.
 
+Correção 2026-11-20 — filament_diameter 2.85 → 1.75 nas Creator 5/5 Pro
+----------------------------------------------------------------------
+
+Versão do módulo: `0.3.3` → `0.3.4`. `engine.version`: `0.2.6` → `0.2.7`.
+
+**Bug crítico corrigido**: o `filaments.generated.json` + `template.json` de
+Flashforge Creator 5 e Creator 5 Pro traziam `filament_diameter = "2.85"`,
+herdado do perfil "Flashforge PLA Basic @FF C5(P)" do Flash Studio Desktop.
+As Creator 5 e 5 Pro são impressoras físicas 1,75 mm (hotend Bowden
+standard). O cabeçalho errado faria o Klipper calcular extrusão volumétrica
+sobre uma seção transversal 2,6× maior e sub-extrudir brutalmente. ForgeBridge
+mantém 1,75 (comparação byte-a-byte em `C:\...\forgebridge-analise-2026-11-20\02-comparacao.md`).
+
+Correção em dois níveis de defesa:
+
+1. **Dados** — `template.json` e `filaments.generated.json` corrigidos para
+   `"1.75"` em `creator5/` e `creator5pro/`. Outras 3 Flashforge (AD5X,
+   Adventurer 5M, Adventurer 5M Pro) já estavam em 1,75 e permanecem.
+   Todas as 108 Creality também em 1,75 (auditadas).
+2. **Tempo de execução** — campo novo `filament_diameter_mm` no
+   `printer.json` das 5 Flashforge (= `1.75`). O engine sempre sobrescreve
+   `filament_diameter` do 3MF de saída com esse valor quando declarado,
+   independentemente do template. Se `scripts/build-templates.mjs` for
+   reexecutado e gravar 2,85 no futuro, o motor ainda emite 1,75.
+
+Teste de regressão: `tests/converter-diametro-flashforge.test.ts` falha se
+qualquer impressora com `filament_diameter_mm` declarado sair com diâmetro
+diferente, e explicitamente cobre Creator 5 / 5 Pro.
+
+Mudanças 2026-11-20 — 7 melhorias de baixo risco (paridade com ForgeBridge)
+--------------------------------------------------------------------------
+
+Resposta à análise `02-comparacao.md` seção 6. Mantém o que o Extruvo já
+fazia melhor (4-extrusores consistente; `machine_end_gcode` com condicional
+`print_sequence == "by object"`; `exclude_object` preservado em 1 por
+padrão) e aproxima do ForgeBridge nos pontos onde este preservava melhor a
+intenção do autor:
+
+- **6.2 Preset de processo pela `layer_height` do autor** —
+  `engine-core.ts` escolhe o preset com `≤ layer_height` (tie-break:
+  mais próximo). Ex.: autor com `layer_height=0.13` em Creator 5 Pro
+  agora cai em `0.12mm Standard @FF C5` (antes caía em `0.20mm` por causa
+  do `pin_base_layer_height`).
+- **6.3 `filament_flow_ratio` preservado** — removido de `replaced_by_preset`
+  e adicionado a `filament_keep` em `bambu_to_orca.json`. Flow calibrado
+  do autor (ex.: 0.98) sobrevive à conversão.
+- **6.4 `nozzle_temperature_range_high/low` preservados** — adicionados a
+  `carry_anyway` e `filament_keep`. Range do autor (ex.: 190..240 °C) é
+  mantido; limites físicos da máquina continuam clampando apenas
+  `nozzle_temperature` e `nozzle_temperature_initial_layer`.
+- **6.5 `wipe_tower_x/y` preservados** — adicionados a `carry_anyway`
+  (antes classificados como `machine` / descartados). O bloco de
+  posicionamento de torre de purga em `engine-core.ts` continua clampando
+  contra a mesa do destino e desligando a torre quando não cabe.
+- **6.7 Mapeamento "Generic PLA"** — novos campos
+  `filament_presets_generic` + `filament_generic_id` em `printer.json`.
+  Quando o `filament_vendor` do autor é "Generic" e o destino declara
+  um preset Generic equivalente, o motor usa o preset Generic (ex.:
+  "Generic PLA @FF C5P" em vez de "Flashforge PLA Basic @FF C5P") e
+  grava `filament_vendor=["Generic"]` + `filament_ids=["OGFL99"]`.
+  Só ativo para Creator 5 / Creator 5 Pro nesta rodada; AD5X / 5M / 5M Pro
+  continuam usando o preset Flashforge enquanto o catálogo de Generic
+  não for verificado para esses alvos.
+- **6.8 `M191 S0` no start_gcode do Creator 5 Pro** — `template.json`
+  atualizado para injetar `M191 S0 ; Chamber temp. max65C` após o
+  `M106 P2 S0`. Reseta estado da câmara aquecida entre jobs.
+- **6.9 `exclude_object` já era preservado** — adicionado teste de
+  regressão explícito para AD5X / Creator 5 / Creator 5 Pro.
+
+6.6 (expansão single-filament→4-slots para alvos multitool) **não** foi
+aplicada — o motor já emite `nozzle_volume_type = min(nfil, toolheads)`
+intencionalmente para alinhar ao 3MF oficial do Flash Studio 1.7.9 e
+evitar o SIGSEGV documentado em novembro de 2026.
+
+6.10 (reposicionamento leve dos objetos) **não** foi aplicada — o pedido
+original classificou essa mudança como ALTO risco em multi-objeto com
+`assemble`; adiada até ter um corpus real multi-plate para validar.
+
 Comportamento conhecido NÃO corrigido (upstream Creality)
 ---------------------------------------------------------
 

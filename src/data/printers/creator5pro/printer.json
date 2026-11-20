@@ -20,6 +20,7 @@
     "_fonte": "Limites de temperatura: especificação publicada pela Flashforge (bico 320 °C, mesa 120 °C, câmara 65 °C). Velocidade e aceleração: perfis oficiais do Flash Studio para Creator 5 Pro."
   },
   "bed_type": "Textured PEI Plate",
+  "filament_diameter_mm": 1.75,
   "process_presets": {
     "0.08": "0.08mm Standard @FF C5",
     "0.10": "0.10mm Standard @FF C5",
@@ -37,6 +38,12 @@
     "ASA": "Flashforge ASA Basic @FF C5P",
     "TPU": "Flashforge TPU-95A @FF C5P"
   },
+  "filament_presets_generic": {
+    "PLA": "Generic PLA @FF C5P",
+    "PETG": "Generic PETG @FF C5P",
+    "ABS": "Generic ABS @FF C5P"
+  },
+  "filament_generic_id": "OGFL99",
   "filament_fallback_type": "PLA",
   "support_tree_organic_accepted": true,
   "enabled": true

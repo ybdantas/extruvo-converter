@@ -19,6 +19,7 @@
     "_fonte": "Limites de temperatura: especificação publicada pela Flashforge (bico 320 °C, mesa 120 °C, sem controle de câmara). Velocidade e aceleração: perfis oficiais do Flash Studio para Creator 5 (machine_max_speed_x 600 mm/s, machine_max_acceleration_x 30000 mm/s²)."
   },
   "bed_type": "Textured PEI Plate",
+  "filament_diameter_mm": 1.75,
   "process_presets": {
     "0.08": "0.08mm Standard @FF C5",
     "0.10": "0.10mm Standard @FF C5",
@@ -36,6 +37,12 @@
     "ASA": "Flashforge ASA Basic @FF C5",
     "TPU": "Flashforge TPU-95A @FF C5"
   },
+  "filament_presets_generic": {
+    "PLA": "Generic PLA @FF C5",
+    "PETG": "Generic PETG @FF C5",
+    "ABS": "Generic ABS @FF C5"
+  },
+  "filament_generic_id": "OGFL99",
   "filament_fallback_type": "PLA",
   "support_tree_organic_accepted": true,
   "enabled": true

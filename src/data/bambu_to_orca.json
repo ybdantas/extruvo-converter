@@ -736,8 +736,12 @@
  },
  "carry_anyway": [
   "best_object_pos",
+  "nozzle_temperature_range_high",
+  "nozzle_temperature_range_low",
   "silent_mode",
   "support_object_skip_flush",
+  "wipe_tower_x",
+  "wipe_tower_y",
   "wrapping_detection_layers"
  ],
  "extra_process": [
@@ -936,7 +940,6 @@
   "filament_cost",
   "filament_density",
   "filament_diameter",
-  "filament_flow_ratio",
   "filament_ids",
   "filament_is_support",
   "filament_long_retractions_when_cut",
@@ -1011,9 +1014,12 @@
  "bed_temperature_regex": "(cool|hot|textured|textured_cool)_plate_temp(_initial_layer)?$",
  "filament_keep": [
   "dont_slow_down_outer_wall",
+  "filament_flow_ratio",
   "filament_type",
   "nozzle_temperature",
-  "nozzle_temperature_initial_layer"
+  "nozzle_temperature_initial_layer",
+  "nozzle_temperature_range_high",
+  "nozzle_temperature_range_low"
  ],
  "keep_author_shape": [
   "top_solid_infill_flow_ratio"
