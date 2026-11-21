@@ -111,8 +111,11 @@ export async function validateOutput(src: ArrayBuffer | Uint8Array, out: ArrayBu
   push(checks, 'vetores_por_filamento', !badLen.length, !badLen.length ? `todos com ${n} itens` : 'tamanho errado: ' + [...new Set(badLen)].sort().slice(0, 20).join(', '))
   const fm = Array.isArray(R.flush_volumes_matrix) ? (R.flush_volumes_matrix as unknown[]) : []
   const fvv = Array.isArray(R.flush_volumes_vector) ? (R.flush_volumes_vector as unknown[]) : []
-  push(checks, 'matriz_purga_NxN', fm.length === n * n && fvv.length === 2 * n && fm.every(x => num(x) !== null),
-    `matriz ${fm.length} itens (esperado ${n * n}), vetor ${fvv.length} (esperado ${2 * n})`)
+  // Máquinas multi-bico com mais de um filamento levam uma matriz NxN por bico.
+  const toolheadsFm = Array.isArray(R.nozzle_diameter) ? (R.nozzle_diameter as unknown[]).length : 1
+  const fmExpected = toolheadsFm > 1 && n > 1 ? n * n * toolheadsFm : n * n
+  push(checks, 'matriz_purga_NxN', fm.length === fmExpected && fvv.length === 2 * n && fm.every(x => num(x) !== null),
+    `matriz ${fm.length} itens (esperado ${fmExpected}), vetor ${fvv.length} (esperado ${2 * n})`)
   const d = Array.isArray(R.different_settings_to_system) ? (R.different_settings_to_system as unknown[]) : null
   push(checks, 'different_settings_to_system', !!d && d.length === n + 2, `${d ? d.length : '?'} slots (esperado processo + ${n} filamentos + impressora)`)
   if (d && d.length) {

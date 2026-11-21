@@ -403,6 +403,75 @@ com o mesmo comportamento no Orca CLI:
 
 A verificação `gcode_custom_xy_na_mesa` do motor é `pending`, não erro.
 
+Correções 2026-11-20 (noite) — módulo 0.3.5 / motor 0.2.8: corpus real fatiado no Flash Studio
+
+Rodada local (sem publicação) em que todo o corpus de projetos reais disponível foi
+convertido para as 5 Flashforge e fatiado no Flash Studio Desktop CLI (Orca-Flashforge
+2.4.2). Divergências deliberadas em relação ao motor Python v0.2.3 e aos perfis upstream:
+
+1. Caixa dos itens medida pelos vértices quando o item está girado (antes: caixa alinhada
+   aos eixos da caixa local girada, que superestima a peça e gerava "maior que a mesa" falso
+   e centralização errada da placa). Arquivo: src/model3mf.ts (itemBboxes).
+2. Metadado Application acrescentado quando o 3MF de origem não o traz; o hash de
+   integridade dos .model ignora esse elemento.
+3. Máquinas multi-bico (Creator 5 / 5 Pro) com mais de um filamento:
+   a) activate_air_filtration_during_print, activate_air_filtration_on_completion e
+      filament_cooling_before_tower passam a ter uma entrada por filamento, com o valor
+      padrão do próprio fatiador (1, 1, 10 — observado no projeto que o Flash Studio CLI
+      exporta com os perfis oficiais). Sem isso o fatiador registra "option <chave> variant
+      index N out of range, skipping".
+   b) flush_volumes_matrix é repetida para cada bico (N² x bicos) e flush_multiplier ganha
+      uma entrada por bico. Com a matriz única o fatiador avisa "Short flush matrix; using
+      prime-volume fallback" e ignora os volumes de purga do autor. O formato foi deduzido
+      da própria mensagem do fatiador (matrix_size / expected_size por bico) e confirmado
+      fatiando; nenhum volume do autor é alterado.
+4. Torre de purga: além do clamp contra a mesa, o motor confere a torre contra a caixa de
+   cada peça da placa e a move para o ponto livre com mais espaço à frente quando ela
+   cairia em cima do modelo (vira AVISO visível ao usuário). Sem ponto livre: pendência em
+   placa multicolor; aviso explicado em placa de um filamento só (a torre não é impressa
+   nela). A profundidade real da torre depende do volume de purga e não é conhecida antes
+   de fatiar; o motor tenta primeiro 1,5 x largura e depois max(20 mm, 0,6 x largura).
+5. Sequência "por objeto" (global ou definida por placa no model_settings): conferida
+   contra extruder_clearance_radius / height_to_rod / height_to_lid da impressora de
+   destino, usando a caixa de cada peça (teste conservador: caixas, não envoltórias
+   convexas; só peça x peça — a torre de purga não entra na conta). Se não cabe, o projeto passa a "por camada" com aviso. Exceção: quando
+   "por camada" também seria recusado (alturas de camada diferentes por objeto + torre de
+   purga), nada é trocado e o caso vira pendência explicada.
+6. Altura de camada variável (Metadata/layer_heights_profile.txt com alturas diferentes) +
+   suporte em árvore nos estilos que o Flash Studio/Orca resolvem como orgânico (default,
+   tree_organic): support_style passa a tree_hybrid, com aviso. O fatiador recusa a
+   combinação original ("Variable layer height is not supported with Organic supports").
+   Só o estilo muda; tipo de suporte, altura variável e suportes pintados ficam como estão.
+7. Valores numéricos/booleanos JSON no project_settings de origem são gravados como texto
+   (o Flash Studio recusa a chave com "invalid json type").
+8. Anexos em Auxiliaries/ com nome fora do ASCII ou acima de 100 caracteres têm só o nome
+   simplificado (o Flash Studio no Windows falha ao extraí-los, inclusive no original).
+
+9. support_object_skip_flush = 1 (opção do Bambu Studio) não é levado: no Flash Studio o
+   fatiamento aborta com "Unknown label object id!" (isolado por busca binária de chaves).
+   Fica o valor do perfil de destino.
+10. Presets personalizados embutidos do autor (Metadata/filament_settings_N.config,
+    process_settings_N.config, machine_settings_N.config...) não são copiados: pertencem à
+    impressora/filamento de origem e o Flash Studio falha ao carregá-los quando trazem
+    campos nulos ("Deserializing nil into a non-nullable object").
+11. Centralização da placa pela caixa REAL das peças (medida na malha), não mais pela caixa
+    gravada no cache de fatiamento do autor (Metadata/plate_N.json), que fica desatualizada
+    quando ele move algo depois de fatiar e ainda inclui a torre antiga. A torre é posicionada
+    à parte (item 4). Folga torre x peça = brim da peça + brim da torre; folga torre x borda =
+    só o que cresce em volta da torre. A posição escolhida privilegia distância das peças
+    (suportes em árvore e brim saem da caixa da peça).
+13. Placa que usa mais de um filamento e não tem ponto livre para a torre com as peças
+    centralizadas: o conjunto de peças da placa é deslocado como bloco rígido até uma borda e
+    a torre ocupa a faixa que sobra (folga extra de 14 mm quando há suporte ligado). Vira
+    aviso visível. Se nem assim couber, continua pendência.
+12. Projeto de placa única sem printable_area (3MF montado por script) é centralizado na mesa
+    de destino; item de <build> sem atributo transform recebe a identidade para poder ser
+    posicionado.
+
+Regressão: tests/converter-goal-regressions.test.ts (19 testes; 16 falham no motor 0.2.7 —
+artifacts/goal-2026-11-20/converter/regressions-BEFORE-0.2.7.log × regressions-AFTER-0.2.8.log). A paridade AD5X / Adventurer 5M / 5M Pro com o Python v0.2.3 nas fixtures
+sintéticas continua passando sem alteração do teste.
+
 
 
 MIT License

@@ -17,7 +17,7 @@ import { validateOutput, type ValidationContext } from './validate'
 
 export { Printer } from './printers-core'
 
-export const ENGINE_VERSION = '0.2.7'
+export const ENGINE_VERSION = '0.2.8'
 export const BED_KEY_BY_TYPE: Record<string, string> = {
   'Cool Plate': 'cool_plate_temp', 'Engineering Plate': 'eng_plate_temp',
   'High Temp Plate': 'hot_plate_temp', 'Textured PEI Plate': 'textured_plate_temp',
@@ -67,6 +67,58 @@ const FILAMENT_ALIGNED_KEYS: ReadonlyArray<FilamentAlignedKey> = [
   { key: 'filament_extruder_variant', pad: 'Direct Drive Standard', cap: 'nfil' },
   { key: 'filament_map', pad: '1', cap: 'nfil' },
 ]
+
+// Chaves POR FILAMENTO que o Flash Studio (Orca-Flashforge 2.4.2) indexa por filamento em
+// máquinas multi-bico (Creator 5 / 5 Pro) e que o perfil oficial só declara nos filamentos
+// "Elastic". Sem uma entrada por filamento o fatiador registra, para cada filamento extra,
+// "option <chave> variant index N out of range, skipping". O valor gravado é o padrão da
+// fatiador para a opção — conferido no projeto que o próprio Flash Studio CLI exporta com os
+// perfis oficiais (artifacts/goal-2026-11-20/probe/official-c5: 1, 1 e 10) — então o
+// comportamento do fatiamento não muda, só some o aviso.
+const MULTI_TOOLHEAD_FILAMENT_DEFAULTS: Readonly<Record<string, string>> = {
+  activate_air_filtration_during_print: '1',
+  activate_air_filtration_on_completion: '1',
+  filament_cooling_before_tower: '10',
+}
+// Estilos de suporte em árvore que o Flash Studio/Orca resolvem como ORGÂNICO.
+const ORGANIC_TREE_STYLES: readonly string[] = ['default', 'tree_organic']
+
+type Rect = { x0: number; y0: number; x1: number; y1: number; h: number }
+function rectDistance(a: Rect, b: Rect): number {
+  const dx = Math.max(0, a.x0 - b.x1, b.x0 - a.x1)
+  const dy = Math.max(0, a.y0 - b.y1, b.y0 - a.y1)
+  return Math.hypot(dx, dy)
+}
+function addProcessDiff(R: ProjectSettings, key: string): void {
+  const diff = R.different_settings_to_system as string[] | undefined
+  if (!Array.isArray(diff) || !diff.length) return
+  const procSlot = String(diff[0]).split(';').filter(Boolean)
+  if (procSlot.includes(key)) return
+  procSlot.push(key)
+  procSlot.sort()
+  diff[0] = procSlot.join(';')
+}
+
+// O project_settings.config do Bambu/Orca/Flash Studio guarda TODOS os valores como texto
+// (ou lista de textos). Arquivos reescritos por outras ferramentas podem trazer números e
+// booleanos JSON; o Flash Studio recusa a chave ("invalid json type for layer_height") e
+// volta ao padrão em silêncio. Aqui o tipo é normalizado sem mudar o valor.
+function stringifySettingValues(R: ProjectSettings, rep: ConversionReport): ProjectSettings {
+  const fixed: string[] = []
+  const one = (v: unknown): unknown => {
+    if (typeof v === 'number') return Number.isFinite(v) ? String(v) : '0'
+    if (typeof v === 'boolean') return v ? '1' : '0'
+    return v
+  }
+  const out: ProjectSettings = {}
+  for (const [k, v] of Object.entries(R)) {
+    const nv = Array.isArray(v) ? v.map(one) : one(v)
+    if (JSON.stringify(nv) !== JSON.stringify(v)) fixed.push(k)
+    out[k] = nv
+  }
+  if (fixed.length) rep.notes.push(`Valores numéricos/booleanos gravados como texto, como o fatiador exige: ${fixed.slice(0, 12).join(', ')}${fixed.length > 12 ? ' ...' : ''}.`)
+  return out
+}
 
 export class ConversionError extends Error {
   readonly report: ConversionReport
@@ -756,6 +808,16 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
   // o 3MF, já que o nome do preset escolhido pode não ser idêntico ao
   // original do autor.
   if (!keepSpeeds) for (const k of SPEED_KEYS) if (k in R) copied.add(k)
+  // `support_object_skip_flush` é uma opção do Bambu Studio (não purgar ao imprimir suporte).
+  // No Flash Studio, ligada junto com `exclude_object` (padrão dos perfis Flashforge), o
+  // fatiamento aborta com "Unknown label object id!" (isolado por busca binária em
+  // 2026-11-20: diplodok, sagrada_familia, T-Rex...). Volta ao valor do perfil de destino.
+  // Nas Adventurer 5M / 5M Pro (rótulo de objetos pelo firmware) o erro é o mesmo, então a
+  // regra vale para todos os destinos.
+  if (String(first(R.support_object_skip_flush as unknown) ?? '0') === '1' && String(first(T.support_object_skip_flush as unknown) ?? '0') !== '1') {
+    R.support_object_skip_flush = T.support_object_skip_flush ?? '0'
+    rep.notes.push("support_object_skip_flush: '1' do Bambu faz o fatiador da " + printer.label + ' abortar ("Unknown label object id!"); mantido o valor do perfil de destino.')
+  }
   const skipFlushDiff = copied.has('support_object_skip_flush')
     && String(first(R.support_object_skip_flush ?? '0')) !== String(first(T.support_object_skip_flush ?? '0'))
   R.different_settings_to_system = buildDiffLists(mp, copied, nfil, skipFlushDiff)
@@ -894,6 +956,15 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
   if (!plates) rejectAmbiguousPlates()
   const pids = plates.size ? [...plates.keys()].sort((a, b) => a - b) : [1]
   const multi = pids.length > 1
+  // Projeto de placa única sem `printable_area` (3MF montado por script/outro programa): sem
+  // saber a mesa de origem o motor não reposicionava nada e a peça ficava onde estava — na
+  // origem, fora da área útil de algumas impressoras ("Nothing to be sliced"). Assume-se a
+  // mesa de destino como referência; a placa é centralizada pela caixa real das peças.
+  if ((!ob || !(ow > 0) || !(oh > 0)) && !multi) {
+    ob = [nb[0], nb[1], nb[2], nb[3]]
+    ow = nw; oh = nh
+    rep.notes.push(`O projeto de origem não declara a área de impressão; as peças foram centralizadas na mesa da ${printer.label}.`)
+  }
   const items = await M.itemBboxes(zin)
   // instance_id é a posição entre as ocorrências do mesmo objectid no <build>.
   const itemsByObject = new Map<string, number[]>()
@@ -949,9 +1020,14 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
       } catch { /* ignore */ }
     }
     const ub = M.unionBbox(items.filter(item => itemPlate.get(item.index) === pid).map(item => item.bbox))
-    if (!mod && ub && ob && oldOrg.size) {
+    // A caixa medida nas peças (exata) vale mais que a do cache de fatiamento do autor
+    // (`plate_N.json`), que fica desatualizada quando ele move/gira algo depois de fatiar e
+    // ainda inclui a torre de purga antiga. Centralizar por ela jogava a peça para fora da
+    // mesa (BS+decoupe: Y de -4,5 a 204,9 numa mesa de 220). A torre é posicionada à parte.
+    if (ub && ob && oldOrg.size) {
       const [ox, oy] = oldOrg.get(pid)!
       mod = [ub[0] - ox - ob[0], ub[1] - oy - ob[1], ub[3] - ox - ob[0], ub[4] - oy - ob[1]]
+      fit = mod
     }
     if (!fit) fit = mod
     const height = ub ? ub[5] - Math.min(ub[2], 0) : null
@@ -992,6 +1068,21 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
       diff[0] = procSlot.join(';')
     }
     rep.notes.push('O modelo tem suportes pintados à mão e a geração de suporte estava desligada: foi ligada (enable_support) para que esses suportes existam no fatiamento.')
+  }
+  // Altura de camada variável + suporte em árvore orgânico: o Flash Studio/Orca recusam o
+  // projeto inteiro ("Variable layer height is not supported with Organic supports"). Troca-se
+  // só o ESTILO para a árvore híbrida, que aceita altura variável; a altura variável, o tipo
+  // de suporte e os suportes pintados do autor ficam como estão.
+  let hybridTreeRewrite = false
+  if (namesIn.includes(M.LAYER_HEIGHTS_PROFILE)
+    && String(first(R.support_type ?? '')).toLowerCase().startsWith('tree')
+    && ORGANIC_TREE_STYLES.includes(String(first(R.support_style ?? 'default')))
+    && M.hasVariableLayerHeight(await zin.file(M.LAYER_HEIGHTS_PROFILE)!.async('string'))) {
+    const before = String(first(R.support_style ?? 'default'))
+    R.support_style = 'tree_hybrid'
+    addProcessDiff(R, 'support_style')
+    hybridTreeRewrite = true
+    rep.warnings.push(`O projeto usa altura de camada variável junto com suporte em árvore no estilo '${before}', que no Flash Studio/Orca é o orgânico — combinação que o fatiador recusa. O estilo do suporte foi trocado para árvore híbrida (tree_hybrid), que aceita altura variável; a altura variável e os suportes pintados do autor foram mantidos. Confira os suportes na prévia antes de imprimir.`)
   }
   warnRiskySupportCombo(R, rep, paintSup)
   warnThinWallCombo(R, rep)
@@ -1094,8 +1185,222 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
     }
   }
 
-  const removed = namesIn.filter(n => M.CACHE_RE.test(n))
+  // --- caixas dos itens de cada placa, em coordenadas locais da mesa de destino ---
+  const localBoxes = new Map<number, Rect[]>()
+  for (const pid of pids) localBoxes.set(pid, [])
+  if (ow && ob) {
+    for (const item of items) {
+      const pid = itemPlate.get(item.index)
+      if (pid === undefined || !item.bbox || !item.printable) continue
+      const [ox, oy] = oldOrg.get(pid) ?? [0, 0]
+      const [dx, dy] = shifts.get(pid)!
+      const b = item.bbox
+      localBoxes.get(pid)!.push({
+        x0: b[0] - ox - ob[0] + dx, y0: b[1] - oy - ob[1] + dy,
+        x1: b[3] - ox - ob[0] + dx, y1: b[4] - oy - ob[1] + dy,
+        h: b[5] - Math.min(b[2], 0),
+      })
+    }
+  }
+  const plateFilaments = (pid: number): number => {
+    if (filInfo && filInfo.used) {
+      const pu = new Set<number>()
+      for (const { objectId } of (plates.get(pid) ?? [])) for (const v of (filInfo.obj_used.get(objectId) ?? [])) pu.add(v)
+      if (pu.size) return pu.size
+    }
+    return nfilOut
+  }
+  const towerEnabled = () => String(first(R.enable_prime_tower as unknown) ?? '0') === '1'
+
+  // --- torre de purga × modelo ---
+  // O clamp acima só garante a torre dentro da mesa. Numa mesa menor que a de origem a
+  // posição do autor (ou a do template) pode cair em cima de uma peça, e o fatiador aborta
+  // com "gcode path conflicts found between WipeTower and <objeto>". Quando isso acontece a
+  // torre vai para o ponto livre com mais espaço à frente (a profundidade real da torre
+  // cresce com o volume de purga), o mais perto possível da posição original.
+  const towerBlocked = new Set<number>()
+  if (towerEnabled() && nfilOut > 1 && !merged) {
+    // Folga torre x peça: o brim da peça + o brim da torre. Folga torre x borda da mesa: só o
+    // que cresce em volta da TORRE (brim, nervura, cone) — o brim da peça não entra aqui; com
+    // ele (brim de 20 mm do autor) nenhuma posição era aceita numa mesa de 220 mm.
+    const keepGap = brimWidth + primeTowerBrim + skirtOuter + 2
+    const wantGap = Math.max(keepGap, primeTowerBrim + ribWidth + coneExtra + 1, 6)
+    const edgePad = Math.max(0, primeTowerBrim + ribWidth + coneExtra + 1 - 6)
+    const minX = 4 + edgePad, maxX = Math.max(minX, nw - (tw + 6) - edgePad)
+    const minY = 4 + edgePad
+    const axis = (lo: number, hi: number): number[] => {
+      const out: number[] = []
+      for (let v = lo; v < hi - 1e-9; v += 4) out.push(v)
+      out.push(hi)
+      return out
+    }
+    // A profundidade real da torre depende do volume de purga e não é conhecida antes de
+    // fatiar. Procura-se primeiro um ponto livre para a estimativa folgada (1,5 x largura);
+    // se a mesa não tiver esse espaço, aceita-se a estimativa curta (torre retangular de
+    // purga pequena, como a medida no Flash Studio: ~14 mm para 75 mm de largura).
+    const shortDepth = Math.max(20, tw * 0.6)
+    const hits = (boxes: Rect[], x: number, y: number, depth: number, gap: number) =>
+      boxes.some(b => x - gap < b.x1 && x + tw + gap > b.x0 && y - gap < b.y1 && y + depth + gap > b.y0)
+    const roomAhead = (boxes: Rect[], x: number, y: number, depth: number, gap: number) => {
+      let lim = nh - 4 - y
+      for (const b of boxes) if (x - gap < b.x1 && x + tw + gap > b.x0 && b.y0 >= y + depth) lim = Math.min(lim, b.y0 - gap - y)
+      return Math.min(lim, 3 * tw)
+    }
+    const moved: string[] = []
+    for (const pid of pids) {
+      const boxes = localBoxes.get(pid)!
+      const tx = towers.get(pid)![0], ty = towers.get(pid)![1]
+      // Vale para toda placa, inclusive as de um filamento só: o fatiador confere a posição
+      // da torre contra as peças ("Prime Tower is too close to others") mesmo sem usá-la.
+      if (tx === null || ty === null || !boxes.length) continue
+      if (!hits(boxes, tx, ty, th, keepGap)) continue
+      let bx = 0, by = 0, found = false
+      let bestScore = -Infinity
+      for (const [depth, gap] of [[th, wantGap], [th, keepGap], [shortDepth, wantGap], [shortDepth, keepGap]] as const) {
+        const topY = Math.max(minY, nh - (depth + 6) - edgePad)
+        for (const x of axis(minX, maxX)) for (const y of axis(minY, topY)) {
+          if (hits(boxes, x, y, depth, gap)) continue
+          // Preferência: longe das peças (suportes em árvore e brim saem da caixa da peça),
+          // com espaço à frente; a distância à posição original só desempata.
+          const rect: Rect = { x0: x, y0: y, x1: x + tw, y1: y + depth, h: 0 }
+          const clearance = Math.min(80, ...boxes.map(b => rectDistance(rect, b)))
+          const score = clearance * 6 + roomAhead(boxes, x, y, depth, gap) * 2 - Math.hypot(x - tx, y - ty) * 0.25
+          if (score > bestScore) { bestScore = score; bx = x; by = y; found = true }
+        }
+        if (found) break
+      }
+      if (!found) {
+        // Sem ponto livre com a placa centralizada. Se o conjunto de peças + a torre cabem
+        // lado a lado na mesa, o conjunto inteiro (bloco rígido) é encostado em uma borda e a
+        // torre ocupa a faixa que sobra. Só placas que usam mais de um filamento: nas demais
+        // a torre não é impressa e não vale a pena tirar a peça do centro.
+        if (plateFilaments(pid) > 1) {
+          const u = { x0: Math.min(...boxes.map(b => b.x0)), y0: Math.min(...boxes.map(b => b.y0)), x1: Math.max(...boxes.map(b => b.x1)), y1: Math.max(...boxes.map(b => b.y1)) }
+          const uw = u.x1 - u.x0, uh = u.y1 - u.y0
+          const objPad = brimWidth + skirtOuter + 2
+          const towerPad = 4 + edgePad
+          let plan: { dx: number; dy: number; x: number; y: number } | null = null
+          // Com suporte ligado, galhos de árvore saem alguns milímetros da caixa da peça:
+          // tenta-se primeiro com uma folga maior entre peças e torre.
+          const supportOn = String(first(R.enable_support as unknown) ?? '0') === '1'
+          for (const [depth, sideGap] of [[th, keepGap + 14], [shortDepth, keepGap + 14], [th, keepGap], [shortDepth, keepGap]] as const) {
+            if (!supportOn && sideGap !== keepGap) continue
+            // torre atrás (Y alto) das peças
+            if (!plan && objPad + uh + sideGap + depth + towerPad <= nh && tw + 2 * towerPad <= nw) {
+              const dy = objPad - u.y0
+              const x = Math.min(Math.max(u.x0 + (uw - tw) / 2, minX), maxX)
+              plan = { dx: 0, dy, x, y: u.y1 + dy + sideGap }
+            }
+            // torre à direita das peças
+            if (!plan && objPad + uw + sideGap + tw + towerPad <= nw && depth + 2 * towerPad <= nh) {
+              const dx = objPad - u.x0
+              const y = Math.min(Math.max(u.y0 + (uh - depth) / 2, minY), Math.max(minY, nh - depth - towerPad))
+              plan = { dx, dy: 0, x: u.x1 + dx + sideGap, y }
+            }
+            if (plan) break
+          }
+          if (plan) {
+            const cur = shifts.get(pid)!
+            shifts.set(pid, [cur[0] + plan.dx, cur[1] + plan.dy])
+            for (const b of boxes) { b.x0 += plan.dx; b.x1 += plan.dx; b.y0 += plan.dy; b.y1 += plan.dy }
+            towers.set(pid, [plan.x, plan.y])
+            moved.push(`${multi ? `placa ${pid}: ` : ''}peças deslocadas ${Math.abs(plan.dx + plan.dy).toFixed(0)} mm para ${plan.dx ? 'a esquerda' : 'a frente'} e torre em (${plan.x.toFixed(0)}, ${plan.y.toFixed(0)})`)
+            continue
+          }
+        }
+        towerBlocked.add(pid)
+        continue
+      }
+      towers.set(pid, [bx, by])
+      moved.push(`${multi ? `placa ${pid}: ` : ''}(${tx.toFixed(0)}, ${ty.toFixed(0)}) → (${bx.toFixed(0)}, ${by.toFixed(0)})`)
+    }
+    if (moved.length && pids.every(pid => towers.get(pid)![0] !== null && towers.get(pid)![1] !== null)) {
+      R.wipe_tower_x = pids.map(pid => fmt(nb[0] + (towers.get(pid)![0] as number), 2))
+      R.wipe_tower_y = pids.map(pid => fmt(nb[1] + (towers.get(pid)![1] as number), 2))
+      // Vai como AVISO (a interface mostra avisos, não notas): o usuário precisa saber que a
+      // torre mudou de lugar para conferir na prévia.
+      rep.warnings.push(`Torre de purga reposicionada para não ficar em cima do modelo na mesa da ${printer.label}: ${moved.join('; ')} mm. Confira a posição na prévia do fatiador.`)
+    }
+  }
+
+  // --- impressão "por objeto" ---
+  // Por objeto, o cabeçote termina uma peça antes de começar a outra e precisa de espaço
+  // livre em volta (extruder_clearance_radius) e acima (altura até a haste/tampa) — medidas
+  // da IMPRESSORA DE DESTINO, diferentes das do projeto original. Se as peças não respeitam
+  // essas folgas o fatiador recusa ("is too close to others" / "is too tall"). Nesse caso o
+  // projeto passa a "por camada", que não tem risco de colisão do cabeçote.
+  const plateSeq = M.plateSequences(modelSettings ?? '')
+  const globalSeq = String(first(R.print_sequence as unknown) ?? 'by layer')
+  let forceByLayer = false
+  let sequenceNeedsUser = false
+  {
+    const radius = num(first(R.extruder_clearance_radius as unknown)) ?? 0
+    const hRod = num(first(R.extruder_clearance_height_to_rod as unknown)) ?? 0
+    const hLid = num(first(R.extruder_clearance_height_to_lid as unknown)) ?? 0
+    const reasons: string[] = []
+    for (const pid of pids) {
+      if ((plateSeq.get(pid) ?? globalSeq) !== 'by object') continue
+      const boxes = localBoxes.get(pid)!
+      if (!boxes.length) continue
+      const lab = multi ? `placa ${pid}: ` : ''
+      // Só peça x peça. A torre de purga NÃO entra nesta conta: o fatiador não aplica a ela a
+      // folga de impressão por objeto (A1_Poop_Bin, uma peça por placa + torre, fatia limpo
+      // por objeto na Creator 5; com a torre na conta o motor acusava falta de folga à toa).
+      const rects = boxes.slice()
+      let close = false
+      for (let i = 0; i < rects.length && !close; i++) for (let j = i + 1; j < rects.length; j++) {
+        if (rectDistance(rects[i], rects[j]) < radius + 0.5) { close = true; break }
+      }
+      const heights = boxes.map(b => b.h).sort((a, b) => b - a)
+      const tall = (hLid > 0 && heights[0] > hLid) || (hRod > 0 && heights.slice(1).some(h => h > hRod))
+      if (close) reasons.push(`${lab}peças a menos de ${radius.toFixed(0)} mm umas das outras`)
+      else if (tall) reasons.push(`${lab}peça mais alta que a folga do cabeçote (${hRod.toFixed(0)} mm até a haste, ${hLid.toFixed(0)} mm até a tampa)`)
+    }
+    // "Por camada" com torre de purga exige a mesma altura de camada em todos os objetos.
+    // Se o autor deu alturas diferentes por objeto, nenhuma das duas sequências fatia sem
+    // uma decisão do usuário: o projeto fica como está e vira pendência explicada.
+    const objectLayerHeights = new Set([...(modelSettings ?? '').matchAll(/<metadata\s+key="layer_height"\s+value="([^"]*)"/g)].map(m => m[1]))
+    objectLayerHeights.delete(String(first(R.layer_height as unknown) ?? ''))
+    const mixedLayers = objectLayerHeights.size > 0 && towerEnabled() && nfilOut > 1
+    if (reasons.length && mixedLayers) {
+      const msg = `Impressão "por objeto" não cabe na folga do cabeçote da ${printer.label} (${reasons.slice(0, 3).join('; ')}) e "por camada" exigiria a mesma altura de camada em todas as peças por causa da torre de purga (o autor usou alturas diferentes por objeto). O projeto foi mantido como o autor fez; antes de fatiar, afaste as peças, ou iguale as alturas de camada, ou desligue a torre de purga no fatiador.`
+      rep.warnings.push(msg); rep.pending.push(msg)
+      sequenceNeedsUser = true
+    } else if (reasons.length) {
+      R.print_sequence = 'by layer'
+      forceByLayer = true
+      rep.warnings.push(`Sequência de impressão "por objeto" trocada para "por camada": na ${printer.label} o cabeçote colidiria com peças já impressas (${reasons.slice(0, 3).join('; ')}) e o fatiador recusaria o projeto. Por camada não há esse risco. Para imprimir por objeto, afaste as peças no fatiador e reative a opção.`)
+    }
+  }
+
+  // Máquinas multi-bico: uma entrada por filamento nas chaves que o fatiador indexa assim.
+  if (extruderCount(R) > 1 && nfilOut > 1) {
+    for (const [k, v] of Object.entries(MULTI_TOOLHEAD_FILAMENT_DEFAULTS)) {
+      const cur = R[k]
+      if (!Array.isArray(cur) || cur.length !== nfilOut) R[k] = resize(Array.isArray(cur) && cur.length ? cur : [v], nfilOut)
+    }
+    // Matriz de purga POR BICO. Em máquinas multi-bico o fatiador espera uma matriz NxN para
+    // cada bico (N² x bicos) e um multiplicador por bico; com a matriz única ele avisa "Short
+    // flush matrix; using prime-volume fallback" e IGNORA os volumes de purga do autor. A
+    // matriz do autor é repetida para cada bico, sem alterar nenhum volume.
+    const toolheads = extruderCount(R)
+    const fm = R.flush_volumes_matrix
+    if (Array.isArray(fm) && fm.length === nfilOut * nfilOut) {
+      R.flush_volumes_matrix = Array.from({ length: toolheads }, () => fm).flat()
+      const mult = Array.isArray(R.flush_multiplier) ? (R.flush_multiplier as unknown[]) : [R.flush_multiplier ?? '1']
+      R.flush_multiplier = resize(mult.length ? mult : ['1'], toolheads)
+      rep.notes.push(`Matriz de purga repetida para os ${toolheads} bicos da ${printer.label} (formato que o fatiador exige em máquinas multi-bico); os volumes do autor não mudaram.`)
+    }
+  }
+
+  // Presets embutidos do projeto de origem (Metadata/filament_settings_N.config etc.) são
+  // presets personalizados da impressora/filamento do AUTOR. No destino todos os valores já
+  // estão no project_settings com os presets Flashforge, e o Flash Studio falha ao carregar
+  // esses arquivos quando trazem campos nulos ("Deserializing nil into a non-nullable object").
+  const embeddedPresets = namesIn.filter(n => M.EMBEDDED_PRESET_RE.test(n))
+  const removed = namesIn.filter(n => M.CACHE_RE.test(n) || M.EMBEDDED_PRESET_RE.test(n))
   rep.removed_files = removed
+  if (embeddedPresets.length) rep.notes.push(`Presets personalizados embutidos do projeto de origem não foram levados (${embeddedPresets.slice(0, 4).join(', ')}): pertencem à impressora/filamento de origem e os valores usados já estão no projeto convertido.`)
   let unassigned = 0
   const version = String(T.version ?? '2.3.2')
 
@@ -1105,17 +1410,45 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
   let customGcodeDropped = 0
   let customGcodeOffBed = false
 
+  // Anexos (fotos do modelo em Auxiliaries/) com nome fora do ASCII ou longo demais: o Flash
+  // Studio no Windows não consegue extraí-los ("Error while extract auxiliary file to file"),
+  // inclusive no projeto original. O conteúdo é mantido; só o nome do arquivo é simplificado.
+  const auxRename = new Map<string, string>()
+  {
+    const taken = new Set(namesIn)
+    for (const name of namesIn) {
+      if (!name.startsWith('Auxiliaries/') || zin.files[name].dir) continue
+      const cut = name.lastIndexOf('/')
+      const base = name.slice(cut + 1)
+      if (!/[^ -~]/.test(base) && base.length <= 100) continue
+      const dot = base.lastIndexOf('.')
+      const ext = dot > 0 ? base.slice(dot).replace(/[^A-Za-z0-9.]/g, '') : ''
+      const stem = (dot > 0 ? base.slice(0, dot) : base).replace(/[^ -~]+/g, '_').replace(/\s+/g, ' ').trim().slice(0, 60) || 'anexo'
+      let candidate = `${name.slice(0, cut + 1)}${stem}${ext}`
+      for (let i = 2; taken.has(candidate); i++) candidate = `${name.slice(0, cut + 1)}${stem}_${i}${ext}`
+      taken.add(candidate)
+      auxRename.set(name, candidate)
+    }
+    if (auxRename.size) rep.notes.push(`${auxRename.size} anexo(s) em Auxiliaries/ tinham nome com caracteres especiais ou longo demais para o Flash Studio no Windows; o nome do arquivo foi simplificado (conteúdo intacto).`)
+  }
+  const renameAuxRefs = (txt: string): string => {
+    for (const [from, to] of auxRename) txt = txt.split(from).join(to)
+    return txt
+  }
+
   for (const [name, entry] of Object.entries(zin.files)) {
     if (entry.dir) continue
     if (removed.includes(name)) continue
     let data: Uint8Array | string = await entry.async('uint8array')
     if (name === SETTINGS) {
-      data = JSON.stringify(R, null, 4)
+      data = JSON.stringify(stringifySettingValues(R, rep), null, 4)
     } else if (name === M.MODEL_SETTINGS) {
       let txt = new TextDecoder().decode(data)
       if (fixes.size) txt = M.rebaseExtruders(txt, fixes, rebase)
       txt = M.remapModelSettings(txt, keepIdx ?? Array.from({ length: nfil }, (_, i) => i + 1), mp.perFeatureFilamentKeys)
       if (Object.keys(mirror).length) txt = M.mirrorObjectKeys(txt, mirror)
+      if (forceByLayer) txt = M.setPlateSequences(txt, 'by layer')
+      if (hybridTreeRewrite) txt = M.rewriteMetadataValue(txt, 'support_style', ['tree_organic'], 'tree_hybrid')
       txt = M.stripPlateBedType(txt)
       data = txt
     } else if (name === M.CUSTOM_GCODE) {
@@ -1143,11 +1476,23 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
     } else if (name === M.ROOT_MODEL) {
       if (merged) data = M.stripColorPaint(data as Uint8Array)
       let txt = new TextDecoder().decode(data as Uint8Array)
-      txt = txt.replace(/(<metadata name="Application">)[^<]*/, (_m, pre: string) => pre + 'BambuStudio-' + version)
+      if (/<metadata name="Application">/.test(txt)) {
+        txt = txt.replace(/(<metadata name="Application">)[^<]*/, (_m, pre: string) => pre + 'BambuStudio-' + version)
+      } else {
+        // 3MF sem o metadado Application (gerado por scripts/outros programas): o Orca e o
+        // Flash Studio reconhecem o projeto por esse prefixo, então ele é acrescentado.
+        txt = txt.replace(/(<model\b[^>]*>)/, (_m, open: string) => `${open}\n <metadata name="Application">BambuStudio-${version}</metadata>`)
+        rep.notes.push('O 3MF de origem não trazia o metadado Application; foi acrescentado para o fatiador reconhecer o projeto.')
+      }
       if (ow && ob) {
         txt = M.mapBuildItems(txt, (tag, index) => {
-          const tm = /transform="([^"]+)"/.exec(tag)
-          if (!tm) return tag
+          let tm = /transform="([^"]+)"/.exec(tag)
+          if (!tm) {
+            // Item sem transformação = identidade; ganha uma para poder ser posicionado.
+            tag = tag.replace(/\s*\/?>$/, m => ` transform="1 0 0 0 1 0 0 0 1 0 0 0"${m.trim() === '/>' ? '/>' : '>'}`)
+            tm = /transform="([^"]+)"/.exec(tag)
+            if (!tm) return tag
+          }
           const parts = tm[1].split(/\s+/)
           if (parts.length !== 12) return tag
           const pid = itemPlate.get(index)
@@ -1165,7 +1510,8 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
     } else if (name.endsWith('.rels') && removed.length) {
       data = M.cleanRels(new TextDecoder().decode(data as Uint8Array), removed)
     }
-    zout.file(name, typeof data === 'string' ? data : data)
+    if (auxRename.size && typeof data === 'string' && (name === M.ROOT_MODEL || name.endsWith('.rels'))) data = renameAuxRefs(data)
+    zout.file(auxRename.get(name) ?? name, typeof data === 'string' ? data : data)
   }
 
   // Scrub .rels entries que apontam para arquivos ausentes no zip de saída.
@@ -1248,16 +1594,15 @@ async function convertCore(srcBytes: Uint8Array, printer: Printer, rep: Conversi
         prow.fits = false
         rep.warnings.push(`${lab}modelo + torre de purga (${(x1 - x0).toFixed(0)} x ${(y1 - y0).toFixed(0)} mm) não cabem na mesa de ${nw.toFixed(0)} x ${nh.toFixed(0)} mm; mova a torre/modelo no fatiador.`)
       } else {
-        let plateFil = nfilOut
-        if (filInfo && filInfo.used) {
-          const pu = new Set<number>()
-          for (const { objectId } of (plates.get(pid) ?? [])) for (const v of (filInfo.obj_used.get(objectId) ?? [])) pu.add(v)
-          if (pu.size) plateFil = pu.size
-        }
-        const [tx, ty] = tower
-        if (plateFil > 1 && String(first(R.enable_prime_tower as unknown)) === '1'
-          && tx !== null && ty !== null && tx < x1 && tx + tw > x0 && ty < y1 && ty + tw > y0) {
-          rep.warnings.push(`${lab}a torre de purga sobrepõe o modelo na mesa; mova-a no fatiador.`)
+        if (towerBlocked.has(pid) && towerEnabled()) {
+          if (plateFilaments(pid) > 1) {
+            const msg = `${lab}não há espaço livre na mesa para a torre de purga sem encostar no modelo; mova ou reduza a torre (ou o modelo) no fatiador antes de fatiar.`
+            rep.warnings.push(msg); rep.pending.push(msg)
+          } else {
+            // Placa de um filamento só: a torre não é impressa nela, então nada impede o
+            // fatiamento; o fatiador só registra que a torre "está perto" das peças.
+            rep.warnings.push(`${lab}a torre de purga não tem lugar livre nesta mesa, mas a placa usa um filamento só e a torre não é impressa nela. O fatiador pode avisar que a torre está perto das peças ("Prime Tower is too close to others"); pode ignorar nesta placa ou arrastar a torre para fora do caminho.`)
+          }
         }
       }
     }

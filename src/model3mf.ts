@@ -9,6 +9,8 @@ export const CUSTOM_GCODE = 'Metadata/custom_gcode_per_layer.xml'
 
 export const CACHE_RE = /^Metadata\/(plate_\d+\.(gcode|json)(\.md5)?|plate_\d+\.gcode\.md5|filament_sequence\.json|cut_information\.xml)$/
 
+export const EMBEDDED_PRESET_RE = /^Metadata\/(filament|process|print|machine|printer)_settings_\d+\.config$/
+
 const BUILD_RE = /(<build\b[^>]*>)([\s\S]*?)(<\/build>)/
 const BUILD_ITEM_RE = /<item\b[^>]*>/g
 
@@ -23,7 +25,9 @@ export async function normalizedModelHash(data: Uint8Array, stripPaint = false):
   // transform de <item ...> e metadata Application mudam no destino; zerar antes de hashear.
   let txt = dec.decode(buf)
   txt = txt.replace(/(<item\b[^>]*?)\s+transform="[^"]*"/g, '$1')
-  txt = txt.replace(/(<metadata name="Application">)[^<]*/g, '$1')
+  // O elemento Application inteiro sai da conta: o destino troca o valor e, quando a origem
+  // não o trazia, o motor o acrescenta (com a quebra de linha que o precede).
+  txt = txt.replace(/\s*<metadata name="Application">[^<]*<\/metadata>/g, '')
   const normalized = enc.encode(txt)
   const crypto: Crypto | undefined = (globalThis as unknown as { crypto?: Crypto }).crypto
   if (crypto?.subtle) {
@@ -539,6 +543,54 @@ export function stripPlateBedType(xml: string): string {
   return xml.replace(/\s*<metadata\s+key="(?:bed_type|curr_bed_type)"\s+value="[^"]*"\s*\/>/g, '')
 }
 
+// Sequência de impressão definida por placa (o Bambu Studio grava `print_sequence` no
+// bloco <plate> quando o autor escolhe "por objeto" só para uma placa).
+export function plateSequences(msXml: string): Map<number, string> {
+  const out = new Map<number, string>()
+  let n = 0
+  for (const [, block] of msXml.matchAll(/<plate\b[^>]*>([\s\S]*?)<\/plate>/g)) {
+    n += 1
+    const head = block.split(/<model_instance\b/)[0]
+    const meta = plateMetadata(head)
+    const id = Number(meta.get('plater_id') ?? n)
+    const seq = meta.get('print_sequence')
+    if (seq) out.set(id, seq)
+  }
+  return out
+}
+
+// Troca o valor de `print_sequence` de todas as placas (usado quando "por objeto" colidiria
+// na impressora de destino e o projeto inteiro passa a "por camada").
+export function setPlateSequences(msXml: string, value: string): string {
+  return msXml.replace(/(<plate\b[^>]*>)([\s\S]*?)(<\/plate>)/g, (_m, open: string, body: string, close: string) => {
+    const cut = body.search(/<model_instance\b/)
+    const head = cut < 0 ? body : body.slice(0, cut)
+    const rest = cut < 0 ? '' : body.slice(cut)
+    return open + head.replace(/(<metadata\s+key="print_sequence"\s+value=")[^"]*(")/g, (_x, a: string, b: string) => a + value + b) + rest + close
+  })
+}
+
+// Reescreve o valor de uma chave de metadado (objeto/parte) quando ele está na lista `from`.
+export function rewriteMetadataValue(msXml: string, key: string, from: readonly string[], to: string): string {
+  const re = new RegExp(`(<metadata\s+key="${key}"\s+value=")([^"]*)(")`, 'g')
+  return msXml.replace(re, (m, a: string, v: string, b: string) => (from.includes(v) ? a + to + b : m))
+}
+
+// true quando algum objeto traz perfil de altura de camada variável de verdade
+// (Metadata/layer_heights_profile.txt: "object_id=N|z;h;z;h;..." com alturas diferentes).
+export function hasVariableLayerHeight(profileTxt: string): boolean {
+  for (const line of profileTxt.split(/\r?\n/)) {
+    const cut = line.indexOf('|')
+    if (cut < 0 || !/^object_id=\d+/.test(line)) continue
+    const nums = line.slice(cut + 1).split(';').map(Number).filter(Number.isFinite)
+    let lo = Infinity, hi = -Infinity
+    for (let i = 1; i < nums.length; i += 2) { if (nums[i] < lo) lo = nums[i]; if (nums[i] > hi) hi = nums[i] }
+    if (hi - lo > 1e-4) return true
+  }
+  return false
+}
+export const LAYER_HEIGHTS_PROFILE = 'Metadata/layer_heights_profile.txt'
+
 type PlateInstance = { objectId: string; instanceIndex: number | null }
 
 function plateMetadata(xml: string): Map<string, string> {
@@ -599,14 +651,19 @@ export function dropDanglingRels(xmlText: string, existing: ReadonlySet<string>)
 }
 
 // --------- geometria (bbox) ---------
-type Local = ['mesh', number[]] | ['comp', Array<[string, string, Matrix12]>]
+// Um objeto-malha guarda a caixa local E os vértices (Float32, x/y/z intercalados).
+// Os vértices são necessários para medir com exatidão um item ROTACIONADO: a caixa
+// alinhada aos eixos de uma caixa girada superestima a peça (um cilindro de 184 mm
+// girado 45° "media" 260 mm) e fazia o conversor avisar "maior que a mesa" para
+// peças que cabem, além de centralizar a placa pelo retângulo errado.
+type Local = ['mesh', number[], Float32Array] | ['comp', Array<[string, string, Matrix12]>]
 
 async function readLocalBboxes(zip: JSZip, name: string): Promise<Record<string, Local>> {
   const bytes = await zip.file(name)!.async('uint8array')
   const txt = dec.decode(bytes)
   const out: Record<string, Local> = {}
   let curId: string | null = null
-  let cur: { bb: number[] | null; comps: Array<[string, string, Matrix12]> } | null = null
+  let cur: { bb: number[] | null; comps: Array<[string, string, Matrix12]>; verts: Float32Array; n: number } | null = null
   const tokenRe = /<object\b([^>]*)>|<component\b([^>]*)\/?>|<\/object>|<vertex\b[^>]*\/>/g
   const vertexAttrRe = /\bx="([^"]+)"[\s\S]*?\by="([^"]+)"[\s\S]*?\bz="([^"]+)"/
   let m: RegExpExecArray | null
@@ -615,10 +672,10 @@ async function readLocalBboxes(zip: JSZip, name: string): Promise<Record<string,
     if (tok.startsWith('<object')) {
       const im = /\bid="(\d+)"/.exec(m[1] ?? '')
       curId = im ? im[1] : null
-      cur = { bb: null, comps: [] }
+      cur = { bb: null, comps: [], verts: new Float32Array(0), n: 0 }
     } else if (tok.startsWith('</object')) {
       if (curId && cur) {
-        out[curId] = (cur.comps.length && cur.bb === null) ? ['comp', cur.comps] : ['mesh', cur.bb ?? []]
+        out[curId] = (cur.comps.length && cur.bb === null) ? ['comp', cur.comps] : ['mesh', cur.bb ?? [], cur.verts.subarray(0, cur.n)]
       }
       curId = null; cur = null
     } else if (tok.startsWith('<component') && cur) {
@@ -631,21 +688,40 @@ async function readLocalBboxes(zip: JSZip, name: string): Promise<Record<string,
       const vm = vertexAttrRe.exec(tok)
       if (vm) {
         const x = parseFloat(vm[1]), y = parseFloat(vm[2]), z = parseFloat(vm[3])
+        if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) continue
         const b = cur.bb
         if (!b) cur.bb = [x, y, z, x, y, z]
         else {
           if (x < b[0]) b[0] = x; if (y < b[1]) b[1] = y; if (z < b[2]) b[2] = z
           if (x > b[3]) b[3] = x; if (y > b[4]) b[4] = y; if (z > b[5]) b[5] = z
         }
+        if (cur.n + 3 > cur.verts.length) {
+          const grown = new Float32Array(Math.max(3072, cur.verts.length * 2))
+          grown.set(cur.verts.subarray(0, cur.n))
+          cur.verts = grown
+        }
+        cur.verts[cur.n] = x; cur.verts[cur.n + 1] = y; cur.verts[cur.n + 2] = z
+        cur.n += 3
       }
     }
   }
   return out
 }
 
+// true quando a parte linear da transformação só troca/inverte/escala eixos: nesse caso
+// os 8 cantos da caixa local já dão a caixa exata e não é preciso varrer os vértices.
+function tfAxisAligned(t: Matrix12): boolean {
+  for (let r = 0; r < 3; r++) {
+    let nonZero = 0
+    for (let c = 0; c < 3; c++) if (Math.abs(t[r * 3 + c]) > 1e-9) nonZero++
+    if (nonZero > 1) return false
+  }
+  return true
+}
+
 export type BBox6 = [number, number, number, number, number, number]
 
-type BuildItem = { index: number; objectId: string; bbox?: BBox6 }
+export type BuildItem = { index: number; objectId: string; bbox?: BBox6; printable: boolean }
 
 export function mapBuildItems(xml: string, mapItem: (tag: string, index: number) => string): string {
   return xml.replace(BUILD_RE, (_match, open: string, body: string, close: string) => {
@@ -662,21 +738,26 @@ export async function itemBboxes(zip: JSZip): Promise<BuildItem[]> {
     }
     return cache.get(path)!
   }
-  function corners(bb: number[]): Array<[number, number, number]> {
-    const [x0, y0, z0, x1, y1, z1] = bb
-    const out: Array<[number, number, number]> = []
-    for (const x of [x0, x1]) for (const y of [y0, y1]) for (const z of [z0, z1]) out.push([x, y, z])
-    return out
+  // `acc` é a caixa acumulada [x0,y0,z0,x1,y1,z1] do item no espaço da mesa.
+  function grow(acc: number[], p: [number, number, number]): void {
+    if (p[0] < acc[0]) acc[0] = p[0]; if (p[1] < acc[1]) acc[1] = p[1]; if (p[2] < acc[2]) acc[2] = p[2]
+    if (p[0] > acc[3]) acc[3] = p[0]; if (p[1] > acc[4]) acc[4] = p[1]; if (p[2] > acc[5]) acc[5] = p[2]
   }
-  async function walk(path: string, oid: string, tf: Matrix12, pts: Array<[number, number, number]>, depth = 0): Promise<void> {
+  async function walk(path: string, oid: string, tf: Matrix12, acc: number[], depth = 0): Promise<void> {
     if (depth > 16) return
     const kind = (await objs(path))[oid]
     if (!kind) return
     if (kind[0] === 'mesh' && kind[1].length) {
-      for (const c of corners(kind[1] as number[])) pts.push(tfApply(tf, c[0], c[1], c[2]))
+      const verts = kind[2]
+      if (tfAxisAligned(tf) || !verts.length) {
+        const [x0, y0, z0, x1, y1, z1] = kind[1]
+        for (const x of [x0, x1]) for (const y of [y0, y1]) for (const z of [z0, z1]) grow(acc, tfApply(tf, x, y, z))
+      } else {
+        for (let i = 0; i < verts.length; i += 3) grow(acc, tfApply(tf, verts[i], verts[i + 1], verts[i + 2]))
+      }
     } else if (kind[0] === 'comp') {
       for (const [cid, cpath, ctf] of kind[1]) {
-        await walk(cpath, cid, tfMul(ctf, tf), pts, depth + 1)
+        await walk(cpath, cid, tfMul(ctf, tf), acc, depth + 1)
       }
     }
   }
@@ -689,13 +770,10 @@ export async function itemBboxes(zip: JSZip): Promise<BuildItem[]> {
     const objectId = /objectid="(\d+)"/.exec(tag)?.[1]
     if (!objectId) continue
     const transform = /transform="([^"]*)"/.exec(tag)?.[1]
-    const pts: Array<[number, number, number]> = []
-    await walk(ROOT_MODEL, objectId, tfParse(transform), pts)
-    const item: BuildItem = { index, objectId }
-    if (pts.length) {
-      const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), zs = pts.map(p => p[2])
-      item.bbox = [Math.min(...xs), Math.min(...ys), Math.min(...zs), Math.max(...xs), Math.max(...ys), Math.max(...zs)]
-    }
+    const acc = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity]
+    await walk(ROOT_MODEL, objectId, tfParse(transform), acc)
+    const item: BuildItem = { index, objectId, printable: !/\bprintable="0"/.test(tag) }
+    if (acc[0] !== Infinity) item.bbox = acc as BBox6
     out.push(item)
   }
   return out
